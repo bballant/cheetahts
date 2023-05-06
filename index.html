@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Field</title>
+    <style>
+        /* Apply the monospace font to the entire body */
+        body {
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+
+        li {
+            margin: 0 0 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="SoccerCanvas" width="360" height="280"></canvas>
+    <table id="playerPositionsTable">
+        <tbody></tbody>
+    </table>
+    <script src="soccer.js"></script>
+    <script>
+        function padStringWithSpaces(inputString, desiredLength) {
+            if (inputString.length >= desiredLength) {
+                return inputString;
+            }
+
+            const paddingLength = desiredLength - inputString.length;
+            const padding = '&nbsp;'.repeat(paddingLength);
+            return inputString + padding;
+        }
+
+        const canvas = document.getElementById('SoccerCanvas');
+        // Parse the query string
+        const urlParams = new URLSearchParams(window.location.search);
+
+        // Get the formation from the query string or default to 322
+        const formation = urlParams.get('formation') ? parseInt(urlParams.get('formation')) : 322;
+
+        // 332 default
+        var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
+        if (formation == 331) {
+            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
+        }
+
+        const players = new Map();
+        const positions = new Map();
+        positionKeys.forEach((positionKey) => {
+            const player = urlParams.get(positionKey);
+            if (player) {
+                players.set(positionKey, player);
+                positions.set(player, positionKey);
+            }
+        });
+
+        // Parse the "subs" query parameter and create an array of players
+        const subsParam = urlParams.get('subs');
+        const subs = subsParam ? subsParam.split(',') : [];
+
+        // Combine the "subs" list with the players from the "players" map
+        const playersList = [...subs, ...Array.from(players.values())];
+        const playersSet = new Set(playersList);
+        const allPlayers = Array.from(playersSet);
+
+        drawSoccerField(canvas, 0, 0, 360, 280, formation, players);
+
+        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
+
+        const dropdownChangeHandler = (event) => {
+            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
+            const selectedPlayers = [];
+            const positionMap = new Map();
+
+            allDropdowns.forEach((dropdown) => {
+                if (dropdown.value) {
+                    console.log(dropdown.value);
+                    selectedPlayers.push(dropdown.value);
+                    positionMap.set(dropdown.id, dropdown.value);
+                }
+            });
+
+            console.log('All Players:', allPlayers);
+            console.log('Selected Players:', selectedPlayers);
+            const subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
+            const currentUrl = new URL(window.location.href);
+            positionMap.forEach((value, key) => {
+                currentUrl.searchParams.set(key, value);
+            });
+            currentUrl.searchParams.set('subs', subs.join(','));
+            const newUrl = currentUrl.toString();
+            console.log('New URL:', newUrl);
+            window.location.href = newUrl;
+        };
+
+        const timePeriods = [
+            { time: "00:00", subs: ["Sloan", "Sophie"], GK: "Jordyn", LB: "Noa", CB: "Marcelle", RB: "Maeve", LM: "Ava", RM: "Alexia", LF: "Nina", RF: "Lila" },
+            { time: "06:30", subs: ["Ava", "Noa"], GK: "Jordyn", LB: "Sophie", CB: "Marcelle", RB: "Maeve", LM: "Sloan", RM: "Alexia", LF: "Nina", RF: "Lila" },
+            { time: "13:00", subs: ["Alexia", "Nina"], GK: "Jordyn", LB: "Sophie", CB: "Marcelle", RB: "Maeve", LM: "Sloan", RM: "Ava", LF: "Noa", RF: "Lila" },
+            { time: "19:30", subs: ["Maeve", "Marcelle"], GK: "Jordyn", LB: "Sophie", CB: "Alexia", RB: "Nina", LM: "Sloan", RM: "Ava", LF: "Noa", RF: "Lila" },
+            { time: "26:00", subs: ["Lila", "Jordyn"], GK: "Sophie", LB: "Noa", CB: "Sloan", RB: "Ava", LM: "Nina", RM: "Alexia", LF: "Marcelle", RF: "Maeve" },
+            { time: "32:30", subs: ["Nina", "Noa"], GK: "Sophie", LB: "Alexia", CB: "Sloan", RB: "Ava", LM: "Lila", RM: "Jordyn", LF: "Marcelle", RF: "Maeve" },
+            { time: "39:00", subs: ["Maeve", "Marcelle"], GK: "Sophie", LB: "Alexia", CB: "Sloan", RB: "Ava", LM: "Lila", RM: "Jordyn", LF: "Noa", RF: "Nina" },
+            { time: "45:30", subs: ["Sloan", "Ava"], GK: "Sophie", LB: "Alexia", CB: "Maeve", RB: "Marcelle", LM: "Lila", RM: "Jordyn", LF: "Noa", RF: "Nina" },
+        ];
+
+        timePeriods.forEach((period) => {
+            const row = tableBody.insertRow();
+            const timesCell = row.insertCell(0)
+            timesCell.vAlign = "top";
+            const subsParam = encodeURIComponent(period.subs.join(','));
+            const queryParams = Object.entries(period)
+                .filter(([key, value]) => key !== 'time' && key !== 'subs')
+                .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
+                .join('&');
+
+            var listItem = `
+                        <a href="index.html?time=${period.time}&subs=${subsParam}&${queryParams}">${period.time}</a>
+                `;
+            if (urlParams.get('time') == period.time) {
+                listItem = `${period.time}`;
+            }
+            timesCell.innerHTML = listItem;
+        })
+
+        var pidx = 0;
+        positionKeys.forEach((positionKey) => {
+            // Insert the position key in the left column
+            const positionCell = tableBody.rows[pidx].insertCell(1);
+            positionCell.innerHTML = '&nbsp;&nbsp;' + positionKey;
+
+            // Create the dropdown list with all players in the right column
+            const playerCell = tableBody.rows[pidx].insertCell(2);
+            const playerSelect = document.createElement('select');
+            playerSelect.id = positionKey;
+            playerSelect.addEventListener('change', dropdownChangeHandler);
+            const emptyOption = document.createElement('option');
+            emptyOption.value = "";
+            emptyOption.text = "None";
+            playerSelect.add(emptyOption);
+            allPlayers.forEach((player) => {
+                const playerOption = document.createElement('option');
+                playerOption.value = player;
+                playerOption.text = player;
+                if (players.get(positionKey) == player) {
+                    playerOption.selected = true;
+                }
+                playerSelect.add(playerOption);
+            });
+            playerCell.appendChild(playerSelect);
+            pidx++;
+        });
+
+        const leCell = tableBody.rows[0].insertCell(3)
+        leCell.rowSpan = positionKeys.length;
+        leCell.vAlign = "top";
+
+        allPlayers.sort();
+        var playerMaxLen = 0;
+        allPlayers.forEach((player) => {
+            playerMaxLen = player.length > playerMaxLen ? player.length : playerMaxLen;
+        });
+
+        console.log(positions);
+        var html = "";
+        allPlayers.forEach((player) => {
+            if (positions.get(player)) {
+                html = html +
+                    "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + positions.get(player) + "<br/>\n"
+            } else {
+                html = html +
+                    "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + "sub <br/>\n"
+            }
+        });
+        leCell.innerHTML = html;
+
+    </script>
+</body>
+
+</html>
