@@ -12,90 +12,25 @@
             font-size: 1.2em;
         }
 
-        li {
-            margin: 0 0 20px 0;
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
         }
     </style>
 </head>
 
 <body>
-    <canvas id="SoccerCanvas" width="360" height="280"></canvas>
+    <canvas id="SoccerCanvas" width="360" height="270"></canvas>
     <table id="playerPositionsTable">
         <tbody></tbody>
     </table>
+    <div></div>
+    <div></div>
+    <div></div>
+    <div id="SubList"></div>
     <script src="soccer.js"></script>
     <script>
-        function padStringWithSpaces(inputString, desiredLength) {
-            if (inputString.length >= desiredLength) {
-                return inputString;
-            }
-
-            const paddingLength = desiredLength - inputString.length;
-            const padding = '&nbsp;'.repeat(paddingLength);
-            return inputString + padding;
-        }
-
-        const canvas = document.getElementById('SoccerCanvas');
-        // Parse the query string
-        const urlParams = new URLSearchParams(window.location.search);
-
-        // Get the formation from the query string or default to 322
-        const formation = urlParams.get('formation') ? parseInt(urlParams.get('formation')) : 322;
-
-        // 332 default
-        var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
-        if (formation == 331) {
-            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
-        }
-
-        const players = new Map();
-        const positions = new Map();
-        positionKeys.forEach((positionKey) => {
-            const player = urlParams.get(positionKey);
-            if (player) {
-                players.set(positionKey, player);
-                positions.set(player, positionKey);
-            }
-        });
-
-        // Parse the "subs" query parameter and create an array of players
-        const subsParam = urlParams.get('subs');
-        const subs = subsParam ? subsParam.split(',') : [];
-
-        // Combine the "subs" list with the players from the "players" map
-        const playersList = [...subs, ...Array.from(players.values())];
-        const playersSet = new Set(playersList);
-        const allPlayers = Array.from(playersSet);
-
-        drawSoccerField(canvas, 0, 0, 360, 280, formation, players);
-
-        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
-
-        const dropdownChangeHandler = (event) => {
-            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
-            const selectedPlayers = [];
-            const positionMap = new Map();
-
-            allDropdowns.forEach((dropdown) => {
-                if (dropdown.value) {
-                    console.log(dropdown.value);
-                    selectedPlayers.push(dropdown.value);
-                    positionMap.set(dropdown.id, dropdown.value);
-                }
-            });
-
-            console.log('All Players:', allPlayers);
-            console.log('Selected Players:', selectedPlayers);
-            const subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
-            const currentUrl = new URL(window.location.href);
-            positionMap.forEach((value, key) => {
-                currentUrl.searchParams.set(key, value);
-            });
-            currentUrl.searchParams.set('subs', subs.join(','));
-            const newUrl = currentUrl.toString();
-            console.log('New URL:', newUrl);
-            window.location.href = newUrl;
-        };
 
         const timePeriods = [
             { time: "00:00", subs: ["Sloan", "Sophie"], GK: "Jordyn", LB: "Noa", CB: "Marcelle", RB: "Maeve", LM: "Ava", RM: "Alexia", LF: "Nina", RF: "Lila" },
@@ -108,7 +43,72 @@
             { time: "45:30", subs: ["Sloan", "Ava"], GK: "Sophie", LB: "Alexia", CB: "Maeve", RB: "Marcelle", LM: "Lila", RM: "Jordyn", LF: "Noa", RF: "Nina" },
         ];
 
-        timePeriods.forEach((period) => {
+        function padStringWithSpaces(inputString, desiredLength) {
+            if (inputString.length >= desiredLength) {
+                return inputString;
+            }
+
+            const paddingLength = desiredLength - inputString.length;
+            const padding = '&nbsp;'.repeat(paddingLength);
+            return inputString + padding;
+        }
+
+        function generateSubList(playerMaxLen, timePeriod1, timePeriod2, positionKeys) {
+            const subList = document.createElement('ul');
+            for (positionKey of positionKeys) {
+                const oldPlayer = timePeriod1[positionKey];
+                const newPlayer = timePeriod2[positionKey];
+                if (oldPlayer != newPlayer) {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
+                    subList.appendChild(listItem);
+                }
+            }
+            return subList;
+        }
+
+        /* Setup and querystring parsing */
+
+        const canvas = document.getElementById('SoccerCanvas');
+        const urlParams = new URLSearchParams(window.location.search);
+        const formation = urlParams.get('formation') ? parseInt(urlParams.get('formation')) : 322;
+
+        // 332 default
+        var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
+        if (formation == 331) {
+            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
+        }
+
+        var currTime = urlParams.get('time')
+
+        const players = new Map();
+        const positions = new Map();
+        positionKeys.forEach((positionKey) => {
+            const player = urlParams.get(positionKey);
+            if (player) {
+                players.set(positionKey, player);
+                positions.set(player, positionKey);
+            }
+        });
+        const subsParam = urlParams.get('subs');
+        const subs = subsParam ? subsParam.split(',') : [];
+
+        // Combine the "subs" list with the players from the "players" map
+        const playersList = [...subs, ...Array.from(players.values())];
+        const playersSet = new Set(playersList);
+        const allPlayers = Array.from(playersSet);
+
+        /* Draw the field */
+
+        drawSoccerField(canvas, 0, 0, 360, 270, formation, players);
+
+        /* Information table below */
+
+        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
+
+        /* Time period links */
+
+        for (const period of timePeriods) {
             const row = tableBody.insertRow();
             const timesCell = row.insertCell(0)
             timesCell.vAlign = "top";
@@ -125,10 +125,34 @@
                 listItem = `${period.time}`;
             }
             timesCell.innerHTML = listItem;
-        })
+        }
+
+
+        /* Position selector */
+
+        const dropdownChangeHandler = (event) => {
+            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
+            const selectedPlayers = [];
+            const positionMap = new Map();
+
+            for (const dropdown of allDropdowns) {
+                if (dropdown.value) {
+                    selectedPlayers.push(dropdown.value);
+                    positionMap.set(dropdown.id, dropdown.value);
+                }
+            }
+            const subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
+            const currentUrl = new URL(window.location.href);
+            positionMap.forEach((value, key) => {
+                currentUrl.searchParams.set(key, value);
+            });
+            currentUrl.searchParams.set('subs', subs.join(','));
+            const newUrl = currentUrl.toString();
+            window.location.href = newUrl;
+        };
 
         var pidx = 0;
-        positionKeys.forEach((positionKey) => {
+        for (const positionKey of positionKeys) {
             // Insert the position key in the left column
             const positionCell = tableBody.rows[pidx].insertCell(1);
             positionCell.innerHTML = '&nbsp;&nbsp;' + positionKey;
@@ -153,7 +177,9 @@
             });
             playerCell.appendChild(playerSelect);
             pidx++;
-        });
+        }
+
+        /* Player info */
 
         const leCell = tableBody.rows[0].insertCell(3)
         leCell.rowSpan = positionKeys.length;
@@ -164,10 +190,8 @@
         allPlayers.forEach((player) => {
             playerMaxLen = player.length > playerMaxLen ? player.length : playerMaxLen;
         });
-
-        console.log(positions);
         var html = "";
-        allPlayers.forEach((player) => {
+        for (const player of allPlayers) {
             if (positions.get(player)) {
                 html = html +
                     "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + positions.get(player) + "<br/>\n"
@@ -175,8 +199,22 @@
                 html = html +
                     "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + "sub <br/>\n"
             }
-        });
+        }
         leCell.innerHTML = html;
+
+        /* Sub info */
+
+        for (var i = 0; i < timePeriods.length; i++) {
+            if (i == 0) {
+                continue;
+            }
+            if (currTime == timePeriods[i].time) {
+                const subList = generateSubList(playerMaxLen, timePeriods[i - 1], timePeriods[i], positionKeys);
+                const sublistDiv = document.getElementById('SubList');
+                sublistDiv.innerHTML = "<h3>" + timePeriods[i].time + "</h3>";
+                sublistDiv.appendChild(subList);
+            }
+        }
 
     </script>
 </body>
