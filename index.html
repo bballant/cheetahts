@@ -25,7 +25,7 @@
     <table id="playerPositionsTable">
         <tbody></tbody>
     </table>
-    <div></div>
+    <div id="Nav"></div>
     <div id="SubList"></div>
     <div>&nbsp;</div>
     <a id="weekendGame" href="index.html">
@@ -58,6 +58,10 @@
             positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
         }
 
+        // print to console some useful stuff that I will find a better way
+        console.log(createCSV(positionKeys, game.timePeriods));
+        const minutesPlayed = calculateMinutesPlayed(positionKeys, game.timePeriods);
+
         const currentPeriod = getCurrentPeriod(game);
 
         const players = new Map();
@@ -77,8 +81,6 @@
         const allPlayers = Array.from(playersSet);
 
         /* Draw the field */
-        console.log("cool")
-        console.log(players)
 
         drawSoccerField(canvas, 0, 0, 360, 270, game.formation, players);
 
@@ -173,13 +175,13 @@
         });
         var html = "";
         for (const player of allPlayers) {
+            html = html + "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1);
             if (positions.get(player)) {
-                html = html +
-                    "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + positions.get(player) + "<br/>\n"
+                html = html + positions.get(player);
             } else {
-                html = html +
-                    "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1) + "sub <br/>\n"
+                html = html + "--";
             }
+            html = html + "&nbsp;&nbsp;" + minutesPlayed.get(player) + "<br/>\n";
         }
         leCell.innerHTML = html;
 

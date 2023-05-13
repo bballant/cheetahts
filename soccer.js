@@ -88,6 +88,35 @@ function generateTimePeriods(subs) {
     }
     return timePeriods;
 }
+function createCSV(positions, timePeriods) {
+    let csvContent = positions.join(',') + '\n'; // Create the header row
+    for (let timePeriod of timePeriods) {
+        let row = [];
+        for (let position of positions) {
+            if (position in timePeriod) {
+                row.push(timePeriod[position] || '');
+            }
+            else {
+                row.push('');
+            }
+        }
+        csvContent += row.join(',') + '\n'; // Add each row to the CSV content
+    }
+    return csvContent;
+}
+function calculateMinutesPlayed(positions, timePeriods) {
+    const minutesPlayed = new Map();
+    for (let timePeriod of timePeriods) {
+        for (let position of positions) {
+            const player = timePeriod[position];
+            if (player) {
+                const currentMinutes = minutesPlayed.get(player) || 0;
+                minutesPlayed.set(player, currentMinutes + 6.5);
+            }
+        }
+    }
+    return minutesPlayed;
+}
 function drawSoccerField(canvas, offsetX, offsetY, width, height, formation, playerPositions) {
     const ctx = canvas.getContext("2d");
     const getPositions = (formation) => {

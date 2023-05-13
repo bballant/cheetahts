@@ -118,6 +118,40 @@ function generateTimePeriods(subs: string[]): TimePeriod[] {
     return timePeriods;
 }
 
+function createCSV(positions: string[], timePeriods: any[]): string {
+    let csvContent = positions.join(',') + '\n'; // Create the header row
+
+    for (let timePeriod of timePeriods) {
+        let row: string[] = [];
+        for (let position of positions) {
+            if (position in timePeriod) {
+                row.push(timePeriod[position] || '');
+            } else {
+                row.push('');
+            }
+        }
+        csvContent += row.join(',') + '\n'; // Add each row to the CSV content
+    }
+
+    return csvContent;
+}
+
+function calculateMinutesPlayed(positions: string[], timePeriods: any[]): Map<string, number> {
+    const minutesPlayed = new Map<string, number>();
+
+    for (let timePeriod of timePeriods) {
+        for (let position of positions) {
+            const player = timePeriod[position];
+            if (player) {
+                const currentMinutes = minutesPlayed.get(player) || 0;
+                minutesPlayed.set(player, currentMinutes + 6.5);
+            }
+        }
+    }
+
+    return minutesPlayed;
+}
+
 type Position = {
     position: string;
     x: number;
