@@ -1,4 +1,75 @@
 
+type TimePeriod = {
+    time: number;
+    subs: string[];
+    GK?: string;
+    LB?: string;
+    CB?: string;
+    RB?: string;
+    LM?: string;
+    RM?: string;
+    LF?: string;
+    RF?: string;
+};
+
+type Game = {
+    time: number;
+    formation: number;
+    timePeriods: TimePeriod[];
+}
+
+function mkUrl(game: Game): string {
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('time', game.time.toString());
+    currentUrl.searchParams.set('formation', game.formation.toString());
+    const tpqs = encodeURIComponent(JSON.stringify(game.timePeriods));
+    currentUrl.searchParams.set('timePeriods', tpqs);
+    return currentUrl.toString();
+}
+
+function parseUrl(): Game {
+    const urlParams = new URLSearchParams(window.location.search);
+    const currTime = parseFloat(urlParams.get('time') ?? '0.0');
+
+    var timePeriodStr = urlParams.get('timePeriods');
+    if (timePeriodStr) {
+        timePeriodStr = decodeURIComponent(timePeriodStr);
+    } else {
+        timePeriodStr = '[\
+                { "time": 0.0,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 6.5,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 13.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 19.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 26.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 32.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 39.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+                { "time": 45.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] }\
+            ]';
+    }
+    const timePeriods = JSON.parse(timePeriodStr);
+
+    return {
+        time: currTime,
+        formation: parseInt(urlParams.get('formation') ?? '322'),
+        timePeriods: timePeriods
+    };
+
+}
+
+function getCurrentPeriod(game: Game): TimePeriod {
+    var currPeriod: TimePeriod | null = null;
+    for (const p of game.timePeriods) {
+        if (p.time == game.time) {
+            currPeriod = p;
+            break;
+        }
+    }
+    if (!currPeriod) {
+        throw new Error("Current period not found, game in invalid state")
+    }
+    return currPeriod;
+}
+
 type Position = {
     position: string;
     x: number;
