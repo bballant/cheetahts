@@ -1,4 +1,36 @@
 "use strict";
+function minutesSeconds(decimalNumber) {
+    let minutes = Math.floor(decimalNumber);
+    let seconds = Math.round((decimalNumber - minutes) * 60);
+    if (seconds === 60) {
+        minutes++;
+        seconds = 0;
+    }
+    const minutesString = minutes < 10 ? '0' + minutes : minutes.toString();
+    const secondsString = seconds < 10 ? '0' + seconds : seconds.toString();
+    return `${minutesString}:${secondsString}`;
+}
+function padStringWithSpaces(inputString, desiredLength) {
+    if (inputString.length >= desiredLength) {
+        return inputString;
+    }
+    const paddingLength = desiredLength - inputString.length;
+    const padding = '&nbsp;'.repeat(paddingLength);
+    return inputString + padding;
+}
+function generateSubList(playerMaxLen, timePeriod1, timePeriod2, positionKeys) {
+    const subList = document.createElement('ul');
+    for (let positionKey of positionKeys) {
+        const oldPlayer = timePeriod1[positionKey];
+        const newPlayer = timePeriod2[positionKey];
+        if (oldPlayer !== newPlayer) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
+            subList.appendChild(listItem);
+        }
+    }
+    return subList;
+}
 function mkUrl(game) {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('time', game.time.toString());
@@ -46,6 +78,15 @@ function getCurrentPeriod(game) {
         throw new Error("Current period not found, game in invalid state");
     }
     return currPeriod;
+}
+function generateTimePeriods(subs) {
+    let timePeriods = [];
+    let time = 0.0;
+    for (let i = 0; i < 8; i++) {
+        timePeriods.push({ time: time, subs: [...subs] });
+        time += 6.5;
+    }
+    return timePeriods;
 }
 function drawSoccerField(canvas, offsetX, offsetY, width, height, formation, playerPositions) {
     const ctx = canvas.getContext("2d");

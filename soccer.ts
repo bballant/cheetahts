@@ -1,3 +1,41 @@
+function minutesSeconds(decimalNumber: number): string {
+    let minutes: number = Math.floor(decimalNumber);
+    let seconds: number = Math.round((decimalNumber - minutes) * 60);
+
+    if (seconds === 60) {
+        minutes++;
+        seconds = 0;
+    }
+
+    const minutesString: string = minutes < 10 ? '0' + minutes : minutes.toString();
+    const secondsString: string = seconds < 10 ? '0' + seconds : seconds.toString();
+
+    return `${minutesString}:${secondsString}`;
+}
+
+function padStringWithSpaces(inputString: string, desiredLength: number): string {
+    if (inputString.length >= desiredLength) {
+        return inputString;
+    }
+
+    const paddingLength: number = desiredLength - inputString.length;
+    const padding: string = '&nbsp;'.repeat(paddingLength);
+    return inputString + padding;
+}
+
+function generateSubList(playerMaxLen: number, timePeriod1: any, timePeriod2: any, positionKeys: string[]): HTMLUListElement {
+    const subList: HTMLUListElement = document.createElement('ul');
+    for (let positionKey of positionKeys) {
+        const oldPlayer: string | undefined = timePeriod1[positionKey];
+        const newPlayer: string | undefined = timePeriod2[positionKey];
+        if (oldPlayer !== newPlayer) {
+            const listItem: HTMLLIElement = document.createElement('li');
+            listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
+            subList.appendChild(listItem);
+        }
+    }
+    return subList;
+}
 
 type TimePeriod = {
     time: number;
@@ -68,6 +106,16 @@ function getCurrentPeriod(game: Game): TimePeriod {
         throw new Error("Current period not found, game in invalid state")
     }
     return currPeriod;
+}
+
+function generateTimePeriods(subs: string[]): TimePeriod[] {
+    let timePeriods: TimePeriod[] = [];
+    let time = 0.0;
+    for (let i = 0; i < 8; i++) {
+        timePeriods.push({ time: time, subs: [...subs] });
+        time += 6.5;
+    }
+    return timePeriods;
 }
 
 type Position = {

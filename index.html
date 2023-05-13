@@ -26,112 +26,50 @@
         <tbody></tbody>
     </table>
     <div></div>
-    <div></div>
-    <div></div>
     <div id="SubList"></div>
-    <!-- a
-        href="index.html?timePeriods=%5B%7B%22time%22%3A0%2C%22subs%22%3A%5B%22Puma%22%2C%22Lynx%22%5D%2C%22GK%22%3A%22Leopard%22%2C%22LB%22%3A%22Bobcat%22%2C%22CB%22%3A%22Margay%22%2C%22RB%22%3A%22Lion%22%2C%22LM%22%3A%22Jaguar%22%2C%22RM%22%3A%22Tiger%22%2C%22LF%22%3A%22Caracal%22%2C%22RF%22%3A%22Ocelot%22%7D%2C%7B%22time%22%3A6.5%2C%22subs%22%3A%5B%22Jaguar%22%2C%22Bobcat%22%5D%2C%22GK%22%3A%22Leopard%22%2C%22LB%22%3A%22Lynx%22%2C%22CB%22%3A%22Margay%22%2C%22RB%22%3A%22Lion%22%2C%22LM%22%3A%22Puma%22%2C%22RM%22%3A%22Tiger%22%2C%22LF%22%3A%22Caracal%22%2C%22RF%22%3A%22Ocelot%22%7D%2C%7B%22time%22%3A13%2C%22subs%22%3A%5B%22Tiger%22%2C%22Caracal%22%5D%2C%22GK%22%3A%22Leopard%22%2C%22LB%22%3A%22Lynx%22%2C%22CB%22%3A%22Margay%22%2C%22RB%22%3A%22Lion%22%2C%22LM%22%3A%22Puma%22%2C%22RM%22%3A%22Jaguar%22%2C%22LF%22%3A%22Bobcat%22%2C%22RF%22%3A%22Ocelot%22%7D%2C%7B%22time%22%3A19.5%2C%22subs%22%3A%5B%22Lion%22%2C%22Margay%22%5D%2C%22GK%22%3A%22Leopard%22%2C%22LB%22%3A%22Lynx%22%2C%22CB%22%3A%22Tiger%22%2C%22RB%22%3A%22Caracal%22%2C%22LM%22%3A%22Puma%22%2C%22RM%22%3A%22Jaguar%22%2C%22LF%22%3A%22Bobcat%22%2C%22RF%22%3A%22Ocelot%22%7D%2C%7B%22time%22%3A26%2C%22subs%22%3A%5B%22Ocelot%22%2C%22Leopard%22%5D%2C%22GK%22%3A%22Lynx%22%2C%22LB%22%3A%22Bobcat%22%2C%22CB%22%3A%22Puma%22%2C%22RB%22%3A%22Jaguar%22%2C%22LM%22%3A%22Caracal%22%2C%22RM%22%3A%22Tiger%22%2C%22LF%22%3A%22Margay%22%2C%22RF%22%3A%22Lion%22%7D%2C%7B%22time%22%3A32.5%2C%22subs%22%3A%5B%22Caracal%22%2C%22Bobcat%22%5D%2C%22GK%22%3A%22Lynx%22%2C%22LB%22%3A%22Tiger%22%2C%22CB%22%3A%22Puma%22%2C%22RB%22%3A%22Jaguar%22%2C%22LM%22%3A%22Ocelot%22%2C%22RM%22%3A%22Leopard%22%2C%22LF%22%3A%22Margay%22%2C%22RF%22%3A%22Lion%22%7D%2C%7B%22time%22%3A39%2C%22subs%22%3A%5B%22Lion%22%2C%22Margay%22%5D%2C%22GK%22%3A%22Lynx%22%2C%22LB%22%3A%22Tiger%22%2C%22CB%22%3A%22Puma%22%2C%22RB%22%3A%22Jaguar%22%2C%22LM%22%3A%22Ocelot%22%2C%22RM%22%3A%22Leopard%22%2C%22LF%22%3A%22Bobcat%22%2C%22RF%22%3A%22Caracal%22%7D%2C%7B%22time%22%3A45.5%2C%22subs%22%3A%5B%22Puma%22%2C%22Jaguar%22%5D%2C%22GK%22%3A%22Lynx%22%2C%22LB%22%3A%22Tiger%22%2C%22CB%22%3A%22Lion%22%2C%22RB%22%3A%22Margay%22%2C%22LM%22%3A%22Ocelot%22%2C%22RM%22%3A%22Leopard%22%2C%22LF%22%3A%22Bobcat%22%2C%22RF%22%3A%22Caracal%22%7D%5D">
-        test
-    </a -->
+    <div>&nbsp;</div>
+    <a id="weekendGame" href="index.html">
+        Weekend Game Reset
+    </a>
     <script src="soccer.js"></script>
     <script>
 
-        function makeUrl(theTime, theFormation, theTimePeriods) {
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('time', theTime);
-            currentUrl.searchParams.set('formation', theFormation);
-            const tpqs = encodeURIComponent(JSON.stringify(theTimePeriods));
-            currentUrl.searchParams.set('timePeriods', tpqs);
-            return currentUrl.toString();
+        const weekendPlayers = [
+            "Alexia", "Ava", "Noa", "Marcelle",
+            "Sophie", "Nina", "Lila", "Jordyn",
+            "Eunice", "Beatrice"
+        ];
+        const weekendGame = {
+            time: 0.0,
+            formation: 322,
+            timePeriods: generateTimePeriods(weekendPlayers)
         }
-
-        function minutesSeconds(decimalNumber) {
-            var minutes = Math.floor(decimalNumber);
-            var seconds = Math.round((decimalNumber - minutes) * 60);
-
-            if (seconds === 60) {
-                minutes++;
-                seconds = 0;
-            }
-
-            var minutesString = minutes < 10 ? '0' + minutes : minutes;
-            var secondsString = seconds < 10 ? '0' + seconds : seconds;
-
-            return minutesString + ":" + secondsString;
-        }
-
-        function padStringWithSpaces(inputString, desiredLength) {
-            if (inputString.length >= desiredLength) {
-                return inputString;
-            }
-
-            const paddingLength = desiredLength - inputString.length;
-            const padding = '&nbsp;'.repeat(paddingLength);
-            return inputString + padding;
-        }
-
-        function generateSubList(playerMaxLen, timePeriod1, timePeriod2, positionKeys) {
-            const subList = document.createElement('ul');
-            for (positionKey of positionKeys) {
-                const oldPlayer = timePeriod1[positionKey];
-                const newPlayer = timePeriod2[positionKey];
-                if (oldPlayer != newPlayer) {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
-                    subList.appendChild(listItem);
-                }
-            }
-            return subList;
-        }
+        const weekendUrl = mkUrl(weekendGame);
+        document.getElementById("weekendGame").href = weekendUrl;
 
         /* Setup and querystring parsing */
 
         const canvas = document.getElementById('SoccerCanvas');
-        const urlParams = new URLSearchParams(window.location.search);
-        const formation = urlParams.get('formation') ? parseInt(urlParams.get('formation')) : 322;
-
-        var timePeriodStr = urlParams.get('timePeriods');
-        if (timePeriodStr) {
-            timePeriodStr = decodeURIComponent(timePeriodStr);
-        } else {
-            timePeriodStr = '[\
-                { "time": 0.0,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 6.5,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 13.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 19.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 26.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 32.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 39.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 45.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] }\
-            ]';
-        }
-        const timePeriods = JSON.parse(timePeriodStr);
+        const game = parseUrl();
 
         // 332 default
         var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
-        if (formation == 331) {
+        if (game.formation == 331) {
             positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
         }
 
-        var currTime = urlParams.get('time') ? parseFloat(urlParams.get('time')) : 0.0;
-        var currPeriod = timePeriods[0];
-        for (const p of timePeriods) {
-            if (p.time == currTime) {
-                currPeriod = p;
-                break;
-            }
-        }
+        const currentPeriod = getCurrentPeriod(game);
 
         const players = new Map();
         const positions = new Map();
         positionKeys.forEach((positionKey) => {
-            const player = currPeriod[positionKey];
+            const player = currentPeriod[positionKey];
             if (player) {
                 players.set(positionKey, player);
                 positions.set(player, positionKey);
             }
         });
-        const subs = currPeriod.subs ? currPeriod.subs : [];
+        const subs = currentPeriod.subs ? currentPeriod.subs : [];
 
         // Combine the "subs" list with the players from the "players" map
         const playersList = [...subs, ...Array.from(players.values())];
@@ -139,8 +77,10 @@
         const allPlayers = Array.from(playersSet);
 
         /* Draw the field */
+        console.log("cool")
+        console.log(players)
 
-        drawSoccerField(canvas, 0, 0, 360, 270, formation, players);
+        drawSoccerField(canvas, 0, 0, 360, 270, game.formation, players);
 
         /* Information table below */
 
@@ -148,18 +88,18 @@
 
         /* Time period links */
 
-        var timePeriodStr = JSON.stringify(timePeriods);
-        totalRows = Math.max(timePeriods.length, positionKeys.length);
+        var timePeriodStr = JSON.stringify(game.timePeriods);
+        totalRows = Math.max(game.timePeriods.length, positionKeys.length);
         for (var r = 0; r < totalRows; r++) {
             const row = tableBody.insertRow();
             const timesCell = row.insertCell(0)
             timesCell.vAlign = "top";
             var listItem = '&nbsp;';
-            const period = timePeriods[r];
+            const period = game.timePeriods[r];
             if (period) {
-                const newUrl = makeUrl(period.time, formation, timePeriods);
+                const newUrl = mkUrl({ ...game, time: period.time })
                 var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
-                if (currTime == period.time) {
+                if (game.time == period.time) {
                     listItem = `${minutesSeconds(period.time)}`;
                 }
             }
@@ -176,22 +116,22 @@
             for (const dropdown of allDropdowns) {
                 if (dropdown.value) {
                     selectedPlayers.push(dropdown.value);
-                    currPeriod[dropdown.id] = dropdown.value;
+                    currentPeriod[dropdown.id] = dropdown.value;
                 }
             }
 
-            currPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
+            currentPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
             // update timePeriods
-            for (var i = 0; i < timePeriods.length; i++) {
-                if (timePeriods[i].time == currPeriod.time) {
-                    timePeriods[i] = currPeriod;
+            for (var i = 0; i < game.timePeriods.length; i++) {
+                if (game.timePeriods[i].time == currentPeriod.time) {
+                    game.timePeriods[i] = currentPeriod;
                 }
             }
 
-            const newUrl = makeUrl(currPeriod.time, formation, timePeriods);
-            window.location.href = newUrl;
+            window.location.href = mkUrl(game);
         };
 
+        // draw the selectors
         var pidx = 0;
         for (const positionKey of positionKeys) {
             // Insert the position key in the left column
@@ -245,14 +185,14 @@
 
         /* Sub info */
 
-        for (var i = 0; i < timePeriods.length; i++) {
+        for (var i = 0; i < game.timePeriods.length; i++) {
             if (i == 0) {
                 continue;
             }
-            if (currTime == timePeriods[i].time) {
-                const subList = generateSubList(playerMaxLen, timePeriods[i - 1], timePeriods[i], positionKeys);
+            if (game.time == game.timePeriods[i].time) {
+                const subList = generateSubList(playerMaxLen, game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
                 const sublistDiv = document.getElementById('SubList');
-                sublistDiv.innerHTML = "<h3>" + minutesSeconds(timePeriods[i].time) + "</h3>";
+                sublistDiv.innerHTML = "<h3>" + minutesSeconds(game.timePeriods[i].time) + "</h3>";
                 sublistDiv.appendChild(subList);
             }
         }
