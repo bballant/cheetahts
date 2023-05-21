@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Soccer Sub Planner</title>
+    <style>
+        body {
+            font-size: 18px;
+        }
+
+        .container {
+            max-width: 380px;
+            margin: auto;
+        }
+
+        table {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+
+        td {
+            padding: 10px 0;
+        }
+    </style>
+    <script src="soccer.js"></script>
+    <script>
+        window.onload = function () {
+            const form = document.getElementById('myForm');
+            form.onsubmit = function (e) {
+                e.preventDefault(); // prevent form submission
+
+                const form = document.getElementById('myForm');
+
+                // log the values of each field
+                console.log("Name: " + form.elements['name'].value);
+                console.log("Minutes in game: " + form.elements['minutes'].value);
+                console.log("Sub periods: " + form.elements['periods'].value);
+                console.log("Formation: " + form.elements['formation'].value);
+                console.log("Players: " + form.elements['players'].value);
+
+                let theTimePeriods = form.elements['timePeriodJSON'].value;
+                theTimePeriods = JSON.parse(theTimePeriods);
+                game = {
+                    time: 0,
+                    formation: 322,
+                    timePeriods: theTimePeriods
+                }
+                let hackUrl = mkUrl(game);
+
+                hackUrl = hackUrl.replace('new', 'index');
+
+                // navigate to 'index.html'
+                window.location.href = hackUrl;
+            };
+        };
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Soccer Sub Planner</h1>
+
+        <p>
+            This is the soccer sub planner. It will help you plan your team's sub schedule ahead of time.
+            I made it for my girls' U11 soccer team. It currently only supports an 8-player team and a
+            52 minute game, but I plan to add 11 player formations and more and the source is freely available
+            <a href="http://www.github.com/bballant/cheetahts">here</a>.
+        </p>
+
+        <h2>Get started with a new game</h2>
+
+        <form id="myForm">
+            <table>
+                <tr>
+                    <td>Name It:</td>
+                    <td><input type="text" name="name"></input></td>
+                </tr>
+                <tr>
+                    <td>Minutes in game:</td>
+                    <td>
+                        <select name="minutes">
+                            <option>52</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Sub periods:</td>
+                    <td>
+                        <select name="periods">
+                            <option>8</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Formation:</td>
+                    <td>
+                        <select name="formation">
+                            <option>322</option>
+                            <option>331</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Players:</td>
+                    <td><input type="text" name="players" placeholder="comma separated list of players"></input></td>
+                </tr>
+                <tr>
+                    <td>timePeriod JSON:</td>
+                    <td><textarea name="timePeriodJSON" placeholder="[{'time': 0.0, 'subs': [], ...}]"></textarea>
+                    </td>
+                </tr>
+            </table>
+            <input type="submit" value="Let's Set Up The Game">
+        </form>
+    </div>
+</body>
+
+</html>
