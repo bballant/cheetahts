@@ -188,7 +188,8 @@
             } else {
                 html = html + "--";
             }
-            html = html + "&nbsp;&nbsp;" + minutesPlayed.get(player) + "<br/>\n";
+            var mins = minutesPlayed.get(player) ? minutesPlayed.get(player) : 0;
+            html = html + "&nbsp;&nbsp;" + mins + "<br/>\n";
         }
         leCell.innerHTML = html;
 
