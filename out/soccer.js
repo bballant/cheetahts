@@ -110,14 +110,14 @@ function createCSV(positions, timePeriods) {
     }
     return csvContent;
 }
-function calculateMinutesPlayed(positions, timePeriods) {
+function calculateMinutesPlayed(periodMins, positions, timePeriods) {
     const minutesPlayed = new Map();
     for (let timePeriod of timePeriods) {
         for (let position of positions) {
             const player = timePeriod[position];
             if (player) {
                 const currentMinutes = minutesPlayed.get(player) || 0;
-                minutesPlayed.set(player, currentMinutes + 6.5);
+                minutesPlayed.set(player, currentMinutes + periodMins);
             }
         }
     }

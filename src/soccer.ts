@@ -146,7 +146,7 @@ function createCSV(positions: string[], timePeriods: any[]): string {
     return csvContent;
 }
 
-function calculateMinutesPlayed(positions: string[], timePeriods: any[]): Map<string, number> {
+function calculateMinutesPlayed(periodMins: number, positions: string[], timePeriods: any[]): Map<string, number> {
     const minutesPlayed = new Map<string, number>();
 
     for (let timePeriod of timePeriods) {
@@ -154,7 +154,7 @@ function calculateMinutesPlayed(positions: string[], timePeriods: any[]): Map<st
             const player = timePeriod[position];
             if (player) {
                 const currentMinutes = minutesPlayed.get(player) || 0;
-                minutesPlayed.set(player, currentMinutes + 6.5);
+                minutesPlayed.set(player, currentMinutes + periodMins);
             }
         }
     }

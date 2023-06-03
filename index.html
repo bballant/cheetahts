@@ -46,7 +46,12 @@
         // print to console some useful stuff that I will find a better way
         console.log(game.timePeriods);
         console.log(createCSV(positionKeys, game.timePeriods));
-        const minutesPlayed = calculateMinutesPlayed(positionKeys, game.timePeriods);
+        // gross but I don't feel like threading the duration in
+        let minsPerPeriod = 6.5;
+        if (game.timePeriods.length > 1) {
+            minsPerPeriod = game.timePeriods[1].time - game.timePeriods[0].time;
+        }
+        const minutesPlayed = calculateMinutesPlayed(minsPerPeriod, positionKeys, game.timePeriods);
 
         const currentPeriod = getCurrentPeriod(game);
 
