@@ -22,7 +22,7 @@
             padding: 10px 0;
         }
     </style>
-    <script src="soccer.js"></script>
+    <script src="out/soccer.js"></script>
     <script>
         window.onload = function () {
             const form = document.getElementById('myForm');
@@ -38,15 +38,36 @@
                 console.log("Formation: " + form.elements['formation'].value);
                 console.log("Players: " + form.elements['players'].value);
 
-                let theTimePeriods = form.elements['timePeriodJSON'].value;
-                theTimePeriods = JSON.parse(theTimePeriods);
+                let playerListStr = form.elements['players'].value;
+                let periods = parseInt(form.elements['periods'].value ?? '8');
+                let minutes = parseInt(form.elements['minutes'].value ?? '52');
+                let timePerPeriod = minutes / periods;
+                let currTime = 0;
+                theTimePeriods = []
+
+                // theTimePeriods override
+                let theTimePeriodsStr = form.elements['timePeriodJSON'].value;
+                if (theTimePeriodsStr) {
+                    theTimePeriods = JSON.parse(theTimePeriodsStr);
+                } else if (playerListStr) {
+                    for (p = 0; p < periods; p++) {
+                        theTimePeriods.push({ "time": currTime, "subs": extractWords(playerListStr) })
+                        currTime += timePerPeriod;
+                    }
+                } else {
+                    for (p = 0; p < periods; p++) {
+                        theTimePeriods.push({ "time": currTime, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] })
+                        currTime += timePerPeriod;
+                    }
+                }
+
                 game = {
-                    time: 0,
-                    formation: 322,
+                    name: form.elements['name'].value,
+                    time: 0, // the current period's start time, start at 0
+                    formation: parseInt(form.elements['formation'].value ?? '322'),
                     timePeriods: theTimePeriods
                 }
                 let hackUrl = mkUrl(game);
-
                 hackUrl = hackUrl.replace('new', 'index');
 
                 // navigate to 'index.html'
@@ -80,6 +101,7 @@
                     <td>
                         <select name="minutes">
                             <option>52</option>
+                            <option>30</option>
                         </select>
                     </td>
                 </tr>
@@ -88,6 +110,7 @@
                     <td>
                         <select name="periods">
                             <option>8</option>
+                            <option>4</option>
                         </select>
                     </td>
                 </tr>

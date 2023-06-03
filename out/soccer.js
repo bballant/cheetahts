@@ -1,4 +1,7 @@
-"use strict";
+function extractWords(input) {
+    let words = input.match(/[a-zA-Z]+/g);
+    return words || [];
+}
 function minutesSeconds(decimalNumber) {
     let minutes = Math.floor(decimalNumber);
     let seconds = Math.round((decimalNumber - minutes) * 60);
@@ -33,6 +36,7 @@ function generateSubList(playerMaxLen, timePeriod1, timePeriod2, positionKeys) {
 }
 function mkUrl(game) {
     const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('name', game.name);
     currentUrl.searchParams.set('time', game.time.toString());
     currentUrl.searchParams.set('formation', game.formation.toString());
     const tpqs = encodeURIComponent(JSON.stringify(game.timePeriods));
@@ -40,7 +44,7 @@ function mkUrl(game) {
     return currentUrl.toString();
 }
 function parseUrl() {
-    var _a, _b;
+    var _a, _b, _c;
     const urlParams = new URLSearchParams(window.location.search);
     const currTime = parseFloat((_a = urlParams.get('time')) !== null && _a !== void 0 ? _a : '0.0');
     var timePeriodStr = urlParams.get('timePeriods');
@@ -60,9 +64,11 @@ function parseUrl() {
             ]';
     }
     const timePeriods = JSON.parse(timePeriodStr);
+    var name = (_b = urlParams.get('name')) !== null && _b !== void 0 ? _b : 'No Name';
     return {
+        name: name,
         time: currTime,
-        formation: parseInt((_b = urlParams.get('formation')) !== null && _b !== void 0 ? _b : '322'),
+        formation: parseInt((_c = urlParams.get('formation')) !== null && _c !== void 0 ? _c : '322'),
         timePeriods: timePeriods
     };
 }
@@ -184,3 +190,4 @@ function drawSoccerField(canvas, offsetX, offsetY, width, height, formation, pla
         ctx.fillText(labelText, pos.x - 15, pos.y - 10);
     }
 }
+//# sourceMappingURL=soccer.js.map

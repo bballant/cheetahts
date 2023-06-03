@@ -1,3 +1,28 @@
+type TimePeriod = {
+    time: number;
+    subs: string[];
+    GK?: string;
+    LB?: string;
+    CB?: string;
+    RB?: string;
+    LM?: string;
+    RM?: string;
+    LF?: string;
+    RF?: string;
+};
+
+type Game = {
+    name: string;
+    time: number;
+    formation: number;
+    timePeriods: TimePeriod[];
+}
+
+function extractWords(input: string): string[] {
+    let words = input.match(/[a-zA-Z]+/g);
+    return words || [];
+}
+
 function minutesSeconds(decimalNumber: number): string {
     let minutes: number = Math.floor(decimalNumber);
     let seconds: number = Math.round((decimalNumber - minutes) * 60);
@@ -37,27 +62,9 @@ function generateSubList(playerMaxLen: number, timePeriod1: any, timePeriod2: an
     return subList;
 }
 
-type TimePeriod = {
-    time: number;
-    subs: string[];
-    GK?: string;
-    LB?: string;
-    CB?: string;
-    RB?: string;
-    LM?: string;
-    RM?: string;
-    LF?: string;
-    RF?: string;
-};
-
-type Game = {
-    time: number;
-    formation: number;
-    timePeriods: TimePeriod[];
-}
-
 function mkUrl(game: Game): string {
     const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('name', game.name);
     currentUrl.searchParams.set('time', game.time.toString());
     currentUrl.searchParams.set('formation', game.formation.toString());
     const tpqs = encodeURIComponent(JSON.stringify(game.timePeriods));
@@ -86,7 +93,10 @@ function parseUrl(): Game {
     }
     const timePeriods = JSON.parse(timePeriodStr);
 
+    var name = urlParams.get('name') ?? 'No Name';
+
     return {
+        name: name,
         time: currTime,
         formation: parseInt(urlParams.get('formation') ?? '322'),
         timePeriods: timePeriods
