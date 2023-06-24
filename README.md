@@ -2,9 +2,9 @@
 
 Little web app to help me plan 8v8 kids soccer sub plans for games.
 
-[See it herel](https://bballant.github.io/cheetahts/).
+[See it here](https://bballant.github.io/cheetahts/).
 
-[Create your own](https://bballant.githubh.io/cheetahts/new.html)
+[Create your own](https://bballant.github.io/cheetahts/new.html)
 
 Changes are saved in the URL so make changes and bookmark the url when you're done to keep 'em. Bonus: Every change you make will be in your browser history.
 
