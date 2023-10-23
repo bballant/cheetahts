@@ -21,7 +21,17 @@ function padStringWithSpaces(inputString, desiredLength) {
     const padding = '&nbsp;'.repeat(paddingLength);
     return inputString + padding;
 }
-function generateSubList(playerMaxLen, timePeriod1, timePeriod2, positionKeys) {
+function generateSubNames(timePeriod) {
+    const subList = document.createElement('ul');
+    subList.id = "SubNames";
+    for (let sub of timePeriod.subs) {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = sub;
+        subList.appendChild(listItem);
+    }
+    return subList;
+}
+function generateSubActions(timePeriod1, timePeriod2, positionKeys) {
     const subList = document.createElement('ul');
     for (let positionKey of positionKeys) {
         const oldPlayer = timePeriod1[positionKey];

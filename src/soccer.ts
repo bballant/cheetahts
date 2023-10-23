@@ -48,7 +48,18 @@ function padStringWithSpaces(inputString: string, desiredLength: number): string
     return inputString + padding;
 }
 
-function generateSubList(playerMaxLen: number, timePeriod1: any, timePeriod2: any, positionKeys: string[]): HTMLUListElement {
+function generateSubNames(timePeriod: TimePeriod): HTMLUListElement {
+    const subList: HTMLUListElement = document.createElement('ul');
+    subList.id = "SubNames"
+    for (let sub of timePeriod.subs) {
+        const listItem: HTMLLIElement = document.createElement('li');
+        listItem.innerHTML = sub;
+        subList.appendChild(listItem);
+    }
+    return subList;
+}
+
+function generateSubActions(timePeriod1: any, timePeriod2: any, positionKeys: string[]): HTMLUListElement {
     const subList: HTMLUListElement = document.createElement('ul');
     for (let positionKey of positionKeys) {
         const oldPlayer: string | undefined = timePeriod1[positionKey];

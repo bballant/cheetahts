@@ -184,7 +184,7 @@
                 continue;
             }
             if (game.time == game.timePeriods[i].time) {
-                const subList = generateSubList(playerMaxLen, game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
+                const subList = generateSubActions(game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
                 const sublistDiv = document.getElementById('SubList');
                 let lastPeriod = { ...game.timePeriods[i - 1], time: game.timePeriods[i].time };
                 let newPeriods = Array.from(game.timePeriods);
