@@ -1,3 +1,42 @@
+function drawTimePeriodLinks(periodLinks, game, positionKeys) {
+    let totalRows = Math.max(game.timePeriods.length, positionKeys.length);
+    for (var r = 0; r < totalRows; r++) {
+        const row = periodLinks.insertRow();
+        const timesCell = row.insertCell(0);
+        timesCell.vAlign = "top";
+        var listItem = '&nbsp;';
+        const period = game.timePeriods[r];
+        if (period) {
+            const newUrl = mkUrl(Object.assign(Object.assign({}, game), { time: period.time }));
+            var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
+            if (game.time == period.time) {
+                listItem = `<strong>${minutesSeconds(period.time)}</strong>`;
+            }
+        }
+        timesCell.innerHTML = listItem;
+    }
+}
+function mkSelectorDropdownHandler(game, allPlayers, currentPeriod) {
+    return (event) => {
+        const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
+        const selectedPlayers = [];
+        for (const dropdown of allDropdowns) {
+            const selectElement = dropdown;
+            if (selectElement.value) {
+                selectedPlayers.push(selectElement.value);
+                currentPeriod[dropdown.id] = selectElement.value;
+            }
+        }
+        currentPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
+        // update timePeriods
+        for (var i = 0; i < game.timePeriods.length; i++) {
+            if (game.timePeriods[i].time == currentPeriod.time) {
+                game.timePeriods[i] = currentPeriod;
+            }
+        }
+        window.location.href = mkUrl(game);
+    };
+}
 function drawSelectors(tableBody, allPlayers, positionKeys, positionToPlayers, dropdownChangeHandler) {
     // draw the selectors
     var pidx = 0;

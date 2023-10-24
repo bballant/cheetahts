@@ -120,31 +120,13 @@
         const allPlayers = Array.from(playersSet);
 
         /* Draw the field */
-
-        drawSoccerField(canvas, 0, 0, 360, 270, game.formation, players);
+        drawSoccerField(canvas, 2, 2, 358, 268, game.formation, players);
 
         /* Time period links */
         const periodLinks = document.getElementById('PeriodLinksTable').getElementsByTagName('tbody')[0];
-
-        totalRows = Math.max(game.timePeriods.length, positionKeys.length);
-        for (var r = 0; r < totalRows; r++) {
-            const row = periodLinks.insertRow();
-            const timesCell = row.insertCell(0)
-            timesCell.vAlign = "top";
-            var listItem = '&nbsp;';
-            const period = game.timePeriods[r];
-            if (period) {
-                const newUrl = mkUrl({ ...game, time: period.time })
-                var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
-                if (game.time == period.time) {
-                    listItem = `<strong>${minutesSeconds(period.time)}</strong>`;
-                }
-            }
-            timesCell.innerHTML = listItem;
-        }
+        drawTimePeriodLinks(periodLinks, game, positionKeys);
 
         /* Information table below */
-
         const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
         totalRows = Math.max(game.timePeriods.length, positionKeys.length + currentPeriod.subs.length);
 
@@ -153,32 +135,9 @@
             const row = tableBody.insertRow();
         }
 
-        /* Position selector */
-
-        const dropdownChangeHandler = (event) => {
-            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
-            const selectedPlayers = [];
-
-            for (const dropdown of allDropdowns) {
-                if (dropdown.value) {
-                    selectedPlayers.push(dropdown.value);
-                    currentPeriod[dropdown.id] = dropdown.value;
-                }
-            }
-
-            currentPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
-            // update timePeriods
-            for (var i = 0; i < game.timePeriods.length; i++) {
-                if (game.timePeriods[i].time == currentPeriod.time) {
-                    game.timePeriods[i] = currentPeriod;
-                }
-            }
-
-            window.location.href = mkUrl(game);
-        };
-
-        // draw the selectors
-        drawSelectors(tableBody, allPlayers, positionKeys, players, dropdownChangeHandler);
+        /* Position player selectors */
+        drawSelectors(tableBody, allPlayers, positionKeys, players,
+            mkSelectorDropdownHandler(game, allPlayers, currentPeriod));
 
         /* Player info */
         const leCell = tableBody.rows[0].insertCell(2)
