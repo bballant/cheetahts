@@ -33,16 +33,40 @@ function generateSubNames(timePeriod) {
 }
 function generateSubActions(timePeriod1, timePeriod2, positionKeys) {
     const subList = document.createElement('ul');
+    let noChanges = true;
     for (let positionKey of positionKeys) {
         const oldPlayer = timePeriod1[positionKey];
         const newPlayer = timePeriod2[positionKey];
-        if (oldPlayer !== newPlayer) {
+        if (oldPlayer && newPlayer && oldPlayer !== newPlayer) {
+            noChanges = false;
             const listItem = document.createElement('li');
             listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
             subList.appendChild(listItem);
         }
     }
+    if (noChanges) {
+        const listItem = document.createElement('li');
+        listItem.textContent = "No Changes";
+        subList.appendChild(listItem);
+    }
     return subList;
+}
+function getPositionKeys(game) {
+    var positionKeys = [];
+    switch (game.formation) {
+        case 331:
+            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
+            break;
+        case 442:
+            positionKeys = ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LM', 'LCM', 'RCM', 'RM', 'LF', 'RF'];
+            break;
+        case 433:
+            positionKeys = ['GK', 'LB', 'LCB', 'RCB', 'RB', 'LM', 'CM', 'RM', 'LF', 'ST', 'RF'];
+            break;
+        default: // 322
+            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
+    }
+    return positionKeys;
 }
 function mkUrl(game) {
     const currentUrl = new URL(window.location.href);
@@ -158,6 +182,34 @@ function drawSoccerField(canvas, offsetX, offsetY, width, height, formation, pla
                     { position: "CM", x: (width * 4) / 8 + offsetX, y: height / 2 + offsetY },
                     { position: "RM", x: (width * 4) / 8 + offsetX, y: (height * 3) / 4 + offsetY },
                     { position: "ST", x: (width * 6) / 8 + offsetX, y: height / 2 + offsetY },
+                ];
+            case 442:
+                return [
+                    { position: "GK", x: width / 10 + offsetX, y: height / 2 + offsetY },
+                    { position: "LB", x: width / 4 + offsetX, y: height / 5 + offsetY },
+                    { position: "LCB", x: width / 4 + offsetX, y: (height * 2) / 5 + offsetY },
+                    { position: "RCB", x: width / 4 + offsetX, y: (height * 3) / 5 + offsetY },
+                    { position: "RB", x: width / 4 + offsetX, y: (height * 4) / 5 + offsetY },
+                    { position: "LM", x: (width * 4) / 8 + offsetX, y: height / 5 + offsetY },
+                    { position: "LCM", x: (width * 4) / 8 + offsetX, y: (height * 2) / 5 + offsetY },
+                    { position: "RCM", x: (width * 4) / 8 + offsetX, y: (height * 3) / 5 + offsetY },
+                    { position: "RM", x: (width * 4) / 8 + offsetX, y: (height * 4) / 5 + offsetY },
+                    { position: "LF", x: (width * 6) / 8 + offsetX, y: height / 3 + offsetY },
+                    { position: "RF", x: (width * 6) / 8 + offsetX, y: (height * 2) / 3 + offsetY },
+                ];
+            case 433:
+                return [
+                    { position: "GK", x: width / 10 + offsetX, y: height / 2 + offsetY },
+                    { position: "LB", x: width / 4 + offsetX, y: height / 5 + offsetY },
+                    { position: "LCB", x: width / 4 + offsetX, y: (height * 2) / 5 + offsetY },
+                    { position: "RCB", x: width / 4 + offsetX, y: (height * 3) / 5 + offsetY },
+                    { position: "RB", x: width / 4 + offsetX, y: (height * 4) / 5 + offsetY },
+                    { position: "LM", x: (width * 4) / 8 + offsetX, y: height / 4 + offsetY },
+                    { position: "CM", x: (width * 4) / 8 + offsetX, y: height / 2 + offsetY },
+                    { position: "RM", x: (width * 4) / 8 + offsetX, y: (height * 3) / 4 + offsetY },
+                    { position: "LF", x: (width * 6) / 8 + offsetX, y: height / 4 + offsetY },
+                    { position: "ST", x: (width * 6) / 8 + offsetX, y: height / 2 + offsetY },
+                    { position: "RF", x: (width * 6) / 8 + offsetX, y: (height * 3) / 4 + offsetY },
                 ];
             default:
                 return [];

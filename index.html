@@ -11,42 +11,90 @@
             font-family: monospace;
             font-size: 1.2em;
         }
-
+        tbody {
+            padding: 0;
+        }
+        table td, table td * {
+            vertical-align: top;
+        }
         ul {
             margin: 0;
             padding: 0;
             list-style-type: none;
         }
+        ul#SubNames {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+        ul#SubNames li {
+            display: inline;
+        }
+        ul#SubNames li + li::before {
+            content: ", ";
+        }
+        h4 {
+            margin: 0px 0 5px 0;
+            padding-top: 0px;
+        }
     </style>
 </head>
 
 <body>
-    <canvas id="SoccerCanvas" width="360" height="270"></canvas>
+    <h2 id="MainTitle"></h2>
+    <table id="NavTable">
+        <tbody>
+            <tr>
+                <td>
+                    <table id="PeriodLinksTable">
+                        <tbody></tbody>
+                    </table>
+                </td>
+                <td><canvas id="SoccerCanvas" width="360" height="270"></canvas></td>
+            </tr>
+            <tr>
+                <td>&lt;-&gt;</td>
+                <td id="SubActions"></div></td>
+            </tr>
+            <tr>
+                <td>Subs</td>
+                <td id="Subs"></div></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <br/>
     <table id="playerPositionsTable">
         <tbody></tbody>
     </table>
     <div id="Nav"></div>
-    <div id="SubList"></div>
+    <div>&nbsp;</div>
+    <div><input type="text" size="8">&nbsp;<button id="AddPlayerButton">Add Player</button></div>
+    <div>&nbsp;</div>
+    <div><span id="RemovePlayerSpan"></span>&nbsp;<button id="AddPlayerButton">Remove Player</button></div>
+    <div>&nbsp;</div>
+    <a href="/index.html?time=6.5&formation=322&timePeriods=%255B%257B%2522time%2522%253A0%252C%2522subs%2522%253A%255B%2522Margay%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Leopard%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Lion%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A6.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A13%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Tiger%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A19.5%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Puma%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Tiger%2522%257D%252C%257B%2522time%2522%253A26%252C%2522subs%2522%253A%255B%2522Lynx%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Margay%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Puma%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A32.5%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Margay%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A39%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%252C%257B%2522time%2522%253A45.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Ocelot%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Jaguar%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%255D&name=Wildcats+Vs+Ravens">test</a>
     <div>&nbsp;</div>
     <script src="out/soccer.js"></script>
+    <script src="out/ui.js"></script>
     <script>
         /* Setup and querystring parsing */
 
         const canvas = document.getElementById('SoccerCanvas');
         const game = parseUrl();
 
-        document.title = "Game: " + game.name;
+        console.log(game);
 
-        // 332 default
-        var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
-        if (game.formation == 331) {
-            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
-        }
+        document.title = "Game: " + game.name;
+        document.getElementById('MainTitle').innerHTML = document.title;
+
+        var positionKeys = getPositionKeys(game);
 
         // print to console some useful stuff that I will find a better way
         console.log(game.timePeriods);
         console.log(createCSV(positionKeys, game.timePeriods));
+        // calculate minsPerPeriod
         // gross but I don't feel like threading the duration in
+        // this makes sure we don't error out if we load w/ no data
         let minsPerPeriod = 6.5;
         if (game.timePeriods.length > 1) {
             minsPerPeriod = game.timePeriods[1].time - game.timePeriods[0].time;
@@ -72,133 +120,41 @@
         const allPlayers = Array.from(playersSet);
 
         /* Draw the field */
-
-        drawSoccerField(canvas, 0, 0, 360, 270, game.formation, players);
-
-        /* Information table below */
-
-        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
+        drawSoccerField(canvas, 2, 2, 358, 268, game.formation, players);
 
         /* Time period links */
+        const periodLinks = document.getElementById('PeriodLinksTable').getElementsByTagName('tbody')[0];
+        drawTimePeriodLinks(periodLinks, game, positionKeys);
 
-        var timePeriodStr = JSON.stringify(game.timePeriods);
-        totalRows = Math.max(game.timePeriods.length, positionKeys.length);
+        /* Information table below */
+        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
+        totalRows = Math.max(game.timePeriods.length, positionKeys.length + currentPeriod.subs.length);
+
+        // create the rows for the table
         for (var r = 0; r < totalRows; r++) {
             const row = tableBody.insertRow();
-            const timesCell = row.insertCell(0)
-            timesCell.vAlign = "top";
-            var listItem = '&nbsp;';
-            const period = game.timePeriods[r];
-            if (period) {
-                const newUrl = mkUrl({ ...game, time: period.time })
-                var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
-                if (game.time == period.time) {
-                    listItem = `${minutesSeconds(period.time)}`;
-                }
-            }
-            timesCell.innerHTML = listItem;
         }
 
-
-        /* Position selector */
-
-        const dropdownChangeHandler = (event) => {
-            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
-            const selectedPlayers = [];
-
-            for (const dropdown of allDropdowns) {
-                if (dropdown.value) {
-                    selectedPlayers.push(dropdown.value);
-                    currentPeriod[dropdown.id] = dropdown.value;
-                }
-            }
-
-            currentPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
-            // update timePeriods
-            for (var i = 0; i < game.timePeriods.length; i++) {
-                if (game.timePeriods[i].time == currentPeriod.time) {
-                    game.timePeriods[i] = currentPeriod;
-                }
-            }
-
-            window.location.href = mkUrl(game);
-        };
-
-        // draw the selectors
-        var pidx = 0;
-        for (const positionKey of positionKeys) {
-            // Insert the position key in the left column
-            const positionCell = tableBody.rows[pidx].insertCell(1);
-            positionCell.innerHTML = '&nbsp;&nbsp;' + positionKey;
-
-            // Create the dropdown list with all players in the right column
-            const playerCell = tableBody.rows[pidx].insertCell(2);
-            const playerSelect = document.createElement('select');
-            playerSelect.id = positionKey;
-            playerSelect.addEventListener('change', dropdownChangeHandler);
-            const emptyOption = document.createElement('option');
-            emptyOption.value = "";
-            emptyOption.text = "None";
-            playerSelect.add(emptyOption);
-            allPlayers.forEach((player) => {
-                const playerOption = document.createElement('option');
-                playerOption.value = player;
-                playerOption.text = player;
-                if (players.get(positionKey) == player) {
-                    playerOption.selected = true;
-                }
-                playerSelect.add(playerOption);
-            });
-            playerCell.appendChild(playerSelect);
-            pidx++;
-        }
+        /* Position player selectors */
+        drawSelectors(tableBody, allPlayers, positionKeys, players,
+            mkSelectorDropdownHandler(game, allPlayers, currentPeriod));
 
         /* Player info */
-
-        const leCell = tableBody.rows[0].insertCell(3)
+        const leCell = tableBody.rows[0].insertCell(2)
         leCell.rowSpan = positionKeys.length;
         leCell.vAlign = "top";
-
         allPlayers.sort();
-        var playerMaxLen = 0;
-        allPlayers.forEach((player) => {
-            playerMaxLen = player.length > playerMaxLen ? player.length : playerMaxLen;
-        });
-        var html = "";
-        for (const player of allPlayers) {
-            html = html + "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1);
-            if (positions.get(player)) {
-                html = html + positions.get(player);
-            } else {
-                html = html + "--";
-            }
-            var mins = minutesPlayed.get(player) ? minutesPlayed.get(player) : 0;
-            html = html + "&nbsp;&nbsp;" + mins + "<br/>\n";
-        }
-        leCell.innerHTML = html;
+        drawPlayerInfo(leCell, allPlayers, positions, minutesPlayed);
 
-        /* Sub info */
+        /* Sub info just below field */
+        drawSubInfo(document.getElementById('Subs'), document.getElementById('SubActions'), game, positionKeys);
 
-        for (var i = 0; i < game.timePeriods.length; i++) {
-            if (i == 0) {
-                continue;
-            }
-            if (game.time == game.timePeriods[i].time) {
-                const subList = generateSubActions(game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
-                const sublistDiv = document.getElementById('SubList');
-                let lastPeriod = { ...game.timePeriods[i - 1], time: game.timePeriods[i].time };
-                let newPeriods = Array.from(game.timePeriods);
-                newPeriods[i] = lastPeriod;
-                let dupPrevGame = { ...game, timePeriods: newPeriods };
-                sublistDiv.innerHTML =
-                    "<br/>" +
-                    "<strong>" + minutesSeconds(game.timePeriods[i].time) + "</strong>" + "&nbsp;&nbsp;" +
-                    "<a href='" + mkUrl(dupPrevGame) + "'>copy</a>";
-                sublistDiv.appendChild(subList);
-            }
-        }
+        /* Player Remove UI */
+        const removePlayerSpan = document.getElementById("RemovePlayerSpan");
+        removePlayerSpan.appendChild(mkRemovePlayerSelect(allPlayers));
 
     </script>
 </body>
 
 </html>
+

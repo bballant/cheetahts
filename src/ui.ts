@@ -114,9 +114,6 @@ function drawSubInfo(
     game: Game,
     positionKeys: string[]) {
     for (var i = 0; i < game.timePeriods.length; i++) {
-        if (i == 0) {
-            continue;
-        }
         if (game.time == game.timePeriods[i].time) {
             const subNames = generateSubNames(game.timePeriods[i]);
             const subActions = generateSubActions(game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
