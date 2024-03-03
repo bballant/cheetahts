@@ -1,21 +1,58 @@
 
 function drawTimePeriodLinks(periodLinks: HTMLTableSectionElement, game: Game, positionKeys: string[]) {
-    let totalRows = Math.max(game.timePeriods.length, positionKeys.length);
+    // include an extra space for half-time in the period list
+    let totalRows = game.timePeriods.length + 1;
     for (var r = 0; r < totalRows; r++) {
+        // Think of periods (p) as 1-indexed
+        const p = r + 1;
         const row = periodLinks.insertRow();
         const timesCell = row.insertCell(0)
         timesCell.vAlign = "top";
         var listItem = '&nbsp;';
         const period = game.timePeriods[r];
         if (period) {
-            const newUrl = mkUrl({ ...game, time: period.time })
+            const newUrl = mkUrl({ ...game, period: p })
             var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
-            if (game.time == period.time) {
+            if (p == game.period) {
                 listItem = `<strong>${minutesSeconds(period.time)}</strong>`;
             }
         }
         timesCell.innerHTML = listItem;
+        if (r == (game.timePeriods.length / 2) - 1) {
+            const halftime = periodLinks.insertRow();
+            const htCell = halftime.insertCell(0);
+            htCell.innerHTML = '&nbsp;';
+        }
     }
+}
+
+function addRemovePlayerButtonHandler(
+    button: HTMLButtonElement,
+    player: HTMLSelectElement,
+    game: Game,
+    positionKeys: string[]) {
+    button.addEventListener('click', () => {
+        if (!player.value) {
+            throw ("No player selected to delete");
+        }
+        const newGame = removePlayerFromGame(game, player.value, positionKeys);
+        const newUrl = mkUrl(newGame);
+        window.location.href = newUrl;
+    });
+}
+
+function addAddPlayerButtonHandler(
+    button: HTMLButtonElement,
+    player: HTMLInputElement,
+    game: Game) {
+    button.addEventListener('click', () => {
+        if (!player.value) {
+            throw ("No player selected to delete");
+        }
+        const newGame = addPlayerToGame(game, player.value);
+        const newUrl = mkUrl(newGame);
+        window.location.href = newUrl;
+    });
 }
 
 function mkSelectorDropdownHandler(
@@ -99,8 +136,11 @@ function drawPlayerInfo(
         html = html + "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1);
         if (positions.get(player)) {
             html = html + positions.get(player);
+            if (positions.get(player).length == 2) {
+                html = html + " ";
+            }
         } else {
-            html = html + "--";
+            html = html + "-- ";
         }
         var mins = minutesPlayed.get(player) ? minutesPlayed.get(player) : 0;
         html = html + "&nbsp;&nbsp;" + mins + "<br/>\n";
@@ -108,27 +148,69 @@ function drawPlayerInfo(
     leCell.innerHTML = html;
 }
 
-function drawSubInfo(
-    sublistDiv: HTMLDivElement,
+function drawSubNames(
+    subNamesDiv: HTMLDivElement,
+    game: Game) {
+    const pIdx = game.period - 1;
+    const subNames = generateSubNames(game.timePeriods[pIdx]);
+    subNamesDiv.appendChild(subNames);
+}
+
+function drawPlayerNames(
+    playerNamesDiv: HTMLDivElement,
+    game: Game,
+    positionKeys: string[]) {
+    const pIdx = game.period - 1;
+    const playerNames = generatePlayerNames(game.timePeriods[pIdx], positionKeys);
+    playerNamesDiv.appendChild(playerNames);
+}
+
+function drawSubActions(
     subActionTD: HTMLTableCellElement,
     game: Game,
     positionKeys: string[]) {
-    for (var i = 0; i < game.timePeriods.length; i++) {
-        if (game.time == game.timePeriods[i].time) {
-            const subNames = generateSubNames(game.timePeriods[i]);
-            const subActions = generateSubActions(game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
-            let lastPeriod = { ...game.timePeriods[i - 1], time: game.timePeriods[i].time };
-            let newPeriods = Array.from(game.timePeriods);
-            newPeriods[i] = lastPeriod;
-            let dupPrevGame = { ...game, timePeriods: newPeriods };
-            console.log(subNames);
-            console.log(game.timePeriods[i]);
-            sublistDiv.appendChild(subNames);
-            subActionTD.appendChild(subActions);
-        }
-    }
+    const pIdx = game.period - 1;
+    const subActions = generateSubActions(game.timePeriods[pIdx - 1], game.timePeriods[pIdx], positionKeys);
+    subActionTD.appendChild(subActions);
 }
 
+function drawSubInfo(
+    subNameDiv: HTMLDivElement,
+    playerNameDiv: HTMLDivElement,
+    subActionTD: HTMLTableCellElement,
+    game: Game,
+    positionKeys: string[]) {
+    drawSubNames(subNameDiv, game);
+    drawPlayerNames(playerNameDiv, game, positionKeys);
+    drawSubActions(subActionTD, game, positionKeys);
+}
+
+function mkCopyUrl(game: Game): string | undefined {
+    const newGame = copyPrevPeriodIntoCurrent(game);
+    if (!newGame) {
+        return undefined;
+    }
+    return mkUrl(newGame);
+}
+
+function drawManagePlayersHeader(game: Game, managePlayersHeaderDiv: HTMLDivElement) {
+    const currentTime = minutesSeconds(game.timePeriods[game.period - 1].time);
+    let innerHTML = `<span class="title">Manage Players for Period ${game.period} (${currentTime})</span>`;
+    if (game.period != game.timePeriods.length) {
+        let nextUrl = mkUrl({ ...game, period: game.period + 1 });
+        innerHTML = innerHTML + `&nbsp;<a href=${nextUrl}>next</a>`
+    }
+    managePlayersHeaderDiv.innerHTML = innerHTML;
+}
+
+function drawManagePlayersFooter(game: Game, managePlayersFooterDiv: HTMLDivElement) {
+    let innerHTML = "";
+    const copyUrl = mkCopyUrl(game);
+    if (copyUrl) {
+        innerHTML += `<span class="copy"><a href="${copyUrl}">copy line-up</a> from previous period</span>`
+    }
+    managePlayersFooterDiv.innerHTML = innerHTML;
+}
 
 function mkRemovePlayerSelect(allPlayers: string[]): HTMLSelectElement {
     const playerSelect = document.createElement('select');

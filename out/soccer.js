@@ -21,6 +21,45 @@ function padStringWithSpaces(inputString, desiredLength) {
     const padding = '&nbsp;'.repeat(paddingLength);
     return inputString + padding;
 }
+function copyPrevPeriodIntoCurrent(game) {
+    const pIdx = game.period - 1;
+    if (pIdx == 0 || !game.timePeriods[pIdx - 1] || !game.timePeriods[pIdx]) {
+        // don't copy previous if there is no previous or current
+        return undefined;
+    }
+    ;
+    // new period is copy of last one with updated time
+    let newPeriod = Object.assign(Object.assign({}, game.timePeriods[pIdx - 1]), { time: game.timePeriods[pIdx].time });
+    // this makes a copy
+    let newPeriods = Array.from(game.timePeriods);
+    newPeriods[pIdx] = newPeriod;
+    return Object.assign(Object.assign({}, game), { timePeriods: newPeriods });
+}
+function addPlayerToGame(game, player) {
+    // copy of game periods
+    let newPeriods = [];
+    for (let timePeriod of game.timePeriods) {
+        let newPeriod = Object.assign({}, timePeriod); // make a copy
+        newPeriod.subs.push(player);
+        newPeriods.push(newPeriod);
+    }
+    return Object.assign(Object.assign({}, game), { timePeriods: newPeriods });
+}
+function removePlayerFromGame(game, player, positionKeys) {
+    // copy of game periods
+    let newPeriods = [];
+    for (let timePeriod of game.timePeriods) {
+        let newPeriod = Object.assign({}, timePeriod); // make a copy
+        for (let pos of positionKeys) {
+            if (newPeriod[pos] == player) {
+                newPeriod[pos] = null;
+            }
+        }
+        newPeriod.subs = newPeriod.subs.filter(sub => sub !== player);
+        newPeriods.push(newPeriod);
+    }
+    return Object.assign(Object.assign({}, game), { timePeriods: newPeriods });
+}
 function generateSubNames(timePeriod) {
     const subList = document.createElement('ul');
     subList.id = "SubNames";
@@ -31,17 +70,33 @@ function generateSubNames(timePeriod) {
     }
     return subList;
 }
+function generatePlayerNames(timePeriod, positionKeys) {
+    const playerList = document.createElement('ul');
+    playerList.id = "PlayerNames";
+    for (let pos of positionKeys) {
+        const player = timePeriod[pos];
+        if (player) {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${pos} ${player}`;
+            playerList.appendChild(listItem);
+        }
+    }
+    return playerList;
+}
+///Biff, Grub, Flint, Nugget, Digg, Spark, Grit, Bolt, Muck, Slag, Clink, Fizz, Smelt, Chunk, Spade, Pebble, Gleam 
 function generateSubActions(timePeriod1, timePeriod2, positionKeys) {
     const subList = document.createElement('ul');
     let noChanges = true;
-    for (let positionKey of positionKeys) {
-        const oldPlayer = timePeriod1[positionKey];
-        const newPlayer = timePeriod2[positionKey];
-        if (oldPlayer && newPlayer && oldPlayer !== newPlayer) {
-            noChanges = false;
-            const listItem = document.createElement('li');
-            listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
-            subList.appendChild(listItem);
+    if (timePeriod1 && timePeriod2) {
+        for (let positionKey of positionKeys) {
+            const oldPlayer = timePeriod1[positionKey];
+            const newPlayer = timePeriod2[positionKey];
+            if (oldPlayer && newPlayer && oldPlayer !== newPlayer) {
+                noChanges = false;
+                const listItem = document.createElement('li');
+                listItem.textContent = `${positionKey} ${newPlayer} for ${oldPlayer}`;
+                subList.appendChild(listItem);
+            }
         }
     }
     if (noChanges) {
@@ -71,53 +126,54 @@ function getPositionKeys(game) {
 function mkUrl(game) {
     const currentUrl = new URL(window.location.href);
     currentUrl.searchParams.set('name', game.name);
-    currentUrl.searchParams.set('time', game.time.toString());
+    currentUrl.searchParams.set('period', game.period.toString());
     currentUrl.searchParams.set('formation', game.formation.toString());
     const tpqs = encodeURIComponent(JSON.stringify(game.timePeriods));
     currentUrl.searchParams.set('timePeriods', tpqs);
     return currentUrl.toString();
 }
-function parseUrl() {
-    var _a, _b, _c;
-    const urlParams = new URLSearchParams(window.location.search);
-    const currTime = parseFloat((_a = urlParams.get('time')) !== null && _a !== void 0 ? _a : '0.0');
-    var timePeriodStr = urlParams.get('timePeriods');
-    if (timePeriodStr) {
-        timePeriodStr = decodeURIComponent(timePeriodStr);
-    }
-    else {
-        timePeriodStr = '[\
-                { "time": 0.0,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 6.5,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 13.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 19.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 26.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 32.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 39.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
-                { "time": 45.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] }\
-            ]';
-    }
+function debugGame() {
+    var timePeriodStr = '[\
+            { "time": 0.0,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 6.5,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 13.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 19.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 26.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 32.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 39.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 45.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] }\
+        ]';
     const timePeriods = JSON.parse(timePeriodStr);
-    var name = (_b = urlParams.get('name')) !== null && _b !== void 0 ? _b : 'No Name';
+    return {
+        name: "Wildcats vs Gazelles",
+        period: 1,
+        formation: 322,
+        timePeriods: timePeriods
+    };
+}
+function parseUrl() {
+    var _a, _b;
+    const urlParams = new URLSearchParams(window.location.search);
+    const currPeriod = parseInt(urlParams.get('period'));
+    var timePeriodStr = urlParams.get('timePeriods');
+    if (!timePeriodStr) {
+        return undefined;
+    }
+    timePeriodStr = decodeURIComponent(timePeriodStr);
+    const timePeriods = JSON.parse(timePeriodStr);
+    var name = (_a = urlParams.get('name')) !== null && _a !== void 0 ? _a : 'No Name';
     return {
         name: name,
-        time: currTime,
-        formation: parseInt((_c = urlParams.get('formation')) !== null && _c !== void 0 ? _c : '322'),
+        period: currPeriod,
+        formation: parseInt((_b = urlParams.get('formation')) !== null && _b !== void 0 ? _b : '322'),
         timePeriods: timePeriods
     };
 }
 function getCurrentPeriod(game) {
-    var currPeriod = null;
-    for (const p of game.timePeriods) {
-        if (p.time == game.time) {
-            currPeriod = p;
-            break;
-        }
-    }
-    if (!currPeriod) {
+    if (!game.timePeriods[game.period - 1]) {
         throw new Error("Current period not found, game in invalid state");
     }
-    return currPeriod;
+    return game.timePeriods[game.period - 1];
 }
 function generateTimePeriods(subs) {
     let timePeriods = [];
