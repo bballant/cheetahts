@@ -20,8 +20,8 @@ type Game = {
 }
 
 function extractWords(input: string): string[] {
-    let words = input.match(/[a-zA-Z]+/g);
-    return words || [];
+    let words = input.match(/[a-zA-Z ]+/g);
+    return words.map(s => s.trim()) || [];
 }
 
 function minutesSeconds(decimalNumber: number): string {
@@ -173,7 +173,9 @@ function mkUrl(game: Game): string {
 
 function debugGame(): Game {
     var timePeriodStr = '[\
-            { "time": 0.0,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
+            { "time": 0.0,\
+            "GK": "Puma", "LB": "Lynx", "CB":"Leopard", "RB":"Bobcat", "LM":"Margay", "RM":"Tiger", "LF":"Caracal", "RF":"Ocelot",\
+            "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
             { "time": 6.5,  "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
             { "time": 13.0, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
             { "time": 19.5, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] },\
@@ -184,7 +186,7 @@ function debugGame(): Game {
         ]';
     const timePeriods = JSON.parse(timePeriodStr);
     return {
-        name: "Wildcats vs Gazelles",
+        name: "CheetahTS",
         period: 1,
         formation: 322,
         timePeriods: timePeriods
