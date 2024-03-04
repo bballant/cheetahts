@@ -16,7 +16,7 @@ In the main app, you can modify the line-up for each time period. All changes ar
 
 _Here is a screenshot of the form:_
 
-![CheetahTS Index](cheetahts-index.png)
+![CheetahTS Index](cheetahts-index1.png)
 
 
 
