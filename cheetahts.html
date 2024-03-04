@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Field</title>
+    <style>
+        /* Apply the monospace font to the entire body */
+        body {
+            font-family: monospace;
+            font-size: 1.2em;
+        }
+        h2 {
+            font-family: serif;
+        }
+        tbody {
+            padding: 0;
+        }
+        table td, table td * {
+            vertical-align: top;
+        }
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+        ul#SubNames {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+        /* this ul#ids are hard-coded w/in the ui ts code, unfortch */
+        ul#SubNames li {
+            display: inline;
+        }
+        ul#SubNames li + li::before {
+            content: ", ";
+        }
+        ul#PlayerNames {
+            margin-top: 0px;
+            margin-bottom: 10px;
+        }
+        ul#PlayerNames li {
+            display: inline;
+        }
+        ul#PlayerNames li + li::before {
+            content: ", ";
+        }
+        div#ManagePlayersHeader{
+            padding-bottom: 10px;
+        }
+        div#ManagePlayersHeader span.title {
+            font-family: serif;
+            font-weight: bold;
+        }
+        div#ManagePlayersFooter span.copy {
+            font-family: serif;
+            font-size: smaller;
+        }
+        a.link {
+            font-family: serif;
+        }
+        h4 {
+            margin: 0px 0 5px 0;
+            padding-top: 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2 id="MainTitle"></h2>
+    <table id="NavTable">
+        <tbody>
+            <tr>
+                <td>
+                    <table id="PeriodLinksTable">
+                        <tbody></tbody>
+                    </table>
+                </td>
+                <td><canvas id="SoccerCanvas" width="360" height="270"></canvas></td>
+            </tr>
+            <tr>
+                <td>&lt;-&gt;</td>
+                <td id="SubActions"></div></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td id="Players"></div></td>
+            </tr>
+            <tr>
+                <td>Subs</td>
+                <td id="Subs"></div></td>
+            </tr>
+        </tbody>
+    </table>
+    <div id="ManagePlayersHeader"></div>
+    <table id="playerPositionsTable">
+        <tbody></tbody>
+    </table>
+    <div id="ManagePlayersFooter"></div>
+    <div id="Nav"></div>
+    <div>&nbsp;</div>
+    <div><input id="AddPlayerInput" type="text" size="8">&nbsp;<button id="AddPlayerButton">Add Player</button></div>
+    <div>&nbsp;</div>
+    <div><span id="RemovePlayerSpan"></span>&nbsp;<button id="RemovePlayerButton">Remove Player</button></div>
+    <div>&nbsp;</div>
+    <a class="link" href="/index.html">Help or New Game</a>
+    <div>&nbsp;</div>
+    <a class="link" href="/cheetahts.html?period=2&formation=322&timePeriods=%255B%257B%2522time%2522%253A0%252C%2522subs%2522%253A%255B%2522Margay%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Leopard%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Lion%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A6.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A13%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Tiger%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A19.5%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Puma%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Tiger%2522%257D%252C%257B%2522time%2522%253A26%252C%2522subs%2522%253A%255B%2522Lynx%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Margay%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Puma%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A32.5%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Margay%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A39%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%252C%257B%2522time%2522%253A45.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Ocelot%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Jaguar%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%255D&name=Wildcats+Vs+Ravens">8v8 Sample</a>
+    <a class="link" href="/cheetahts.html?name=Dwarfs+VS+Lemmings&period=1&formation=433&timePeriods=%255B%257B%2522time%2522%253A0%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A11.25%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A22.5%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A33.75%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A45%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A56.25%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A67.5%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A78.75%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%255D">11 V 11 Sample</a>
+    <div>&nbsp;</div>
+    <script src="out/soccer.js"></script>
+    <script src="out/ui.js"></script>
+    <script>
+        /* Setup and querystring parsing */
+        const canvas = document.getElementById('SoccerCanvas');
+        let game = parseUrl();
+        if (!game) {
+            game = debugGame();
+            const debugHTML = `
+                <div>
+                    <p>Welcome to CheetahTS, the Youth Soccer Sub Planner.</p>
+                    <p>You can start changing the 8-player plan below to make it your own,
+                    or start from scratch <a href="/index.html">here</a>.</p>
+                    <p>But the best thing to do is to learn how it works quickly <a href="https://github.com/bballant/cheetahts/blob/main/README.md">here</a>.</p>
+                </div>
+                `
+            document.getElementById('MainTitle').insertAdjacentHTML('afterend', debugHTML);
+        }
+
+        document.title = game.name;
+        document.getElementById('MainTitle').innerHTML = `<em>${document.title}</em>`;
+
+        var positionKeys = getPositionKeys(game);
+
+        // print to console some useful stuff that I will find a better way
+        // Set a global CSV, we can log it in the console
+        var CSV = createCSV(positionKeys, game.timePeriods);
+        //console.log(game.timePeriods);
+        //console.log(createCSV(positionKeys, game.timePeriods));
+        // calculate minsPerPeriod
+        // gross but I don't feel like threading the duration in
+        // this makes sure we don't error out if we load w/ no data
+        let minsPerPeriod = 6.5;
+        if (game.timePeriods.length > 1) {
+            minsPerPeriod = game.timePeriods[1].time - game.timePeriods[0].time;
+        }
+        const minutesPlayed = calculateMinutesPlayed(minsPerPeriod, positionKeys, game.timePeriods);
+
+        const currentPeriod = getCurrentPeriod(game);
+
+        const players = new Map();
+        const positions = new Map();
+        positionKeys.forEach((positionKey) => {
+            const player = currentPeriod[positionKey];
+            if (player) {
+                players.set(positionKey, player);
+                positions.set(player, positionKey);
+            }
+        });
+        const subs = currentPeriod.subs ? currentPeriod.subs : [];
+
+        // Combine the "subs" list with the players from the "players" map
+        const playersList = [...subs, ...Array.from(players.values())];
+        const playersSet = new Set(playersList);
+        const allPlayers = Array.from(playersSet);
+
+        /* Draw the field */
+        drawSoccerField(canvas, 2, 2, 358, 268, game.formation, players);
+
+        /* Time period links */
+        const periodLinks = document.getElementById('PeriodLinksTable').getElementsByTagName('tbody')[0];
+        drawTimePeriodLinks(periodLinks, game, positionKeys);
+
+        const managePlayersHeaderDiv = document.getElementById('ManagePlayersHeader')
+        drawManagePlayersHeader(game, managePlayersHeaderDiv);
+
+        const managePlayersFooterDiv = document.getElementById('ManagePlayersFooter')
+        drawManagePlayersFooter(game, managePlayersFooterDiv);
+
+        /* Sub info just below field */
+        drawSubInfo(
+            document.getElementById('Subs'),
+            document.getElementById('Players'),
+            document.getElementById('SubActions'),
+            game, positionKeys);
+
+        /* Information table below */
+        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
+        totalRows = positionKeys.length;
+
+        // create the rows for the table
+        for (var r = 0; r < totalRows; r++) {
+            const row = tableBody.insertRow();
+        }
+
+        /* Position player selectors */
+        drawSelectors(tableBody, allPlayers, positionKeys, players,
+            mkSelectorDropdownHandler(game, allPlayers, currentPeriod));
+
+        /* Player info */
+        const leCell = tableBody.rows[0].insertCell(2)
+        leCell.rowSpan = positionKeys.length;
+        leCell.vAlign = "top";
+        allPlayers.sort();
+        drawPlayerInfo(leCell, allPlayers, positions, minutesPlayed);
+
+        /* Player Remove UI */
+        const removePlayerSpan = document.getElementById("RemovePlayerSpan");
+        const playerSelect = mkRemovePlayerSelect(allPlayers);
+        removePlayerSpan.appendChild(playerSelect);
+        const removePlayerButton = document.getElementById("RemovePlayerButton");
+        addRemovePlayerButtonHandler(removePlayerButton, playerSelect, game, positionKeys);
+        const addPlayerButton = document.getElementById("AddPlayerButton");
+        const playerInput = document.getElementById("AddPlayerInput");
+        addAddPlayerButtonHandler(addPlayerButton, playerInput, game);
+
+    </script>
+</body>
+
+</html>
+

@@ -1,204 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soccer Field</title>
+    <title>Soccer Sub Planner</title>
     <style>
-        /* Apply the monospace font to the entire body */
         body {
-            font-family: monospace;
+            font-family: serif;
             font-size: 1.2em;
         }
-
-        ul {
-            margin: 0;
-            padding: 0;
-            list-style-type: none;
+        .container {
+            max-width: 640px;
+            margin: auto;
+        }
+        table {
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        td.label {
+            width: 35%;
+        }
+        td {
+            padding: 10px 0;
+        }
+        textarea#players {
+            height: 5em;
+        }
+        input#minutes {
+            width: 3em;
         }
     </style>
+    <script src="out/soccer.js"></script>
+    <script>
+        window.onload = function () {
+            const form = document.getElementById('myForm');
+            form.onsubmit = function (e) {
+                e.preventDefault(); // prevent form submission
+
+                const form = document.getElementById('myForm');
+
+                // log the values of each field
+                console.log("Name: " + form.elements['name'].value);
+                console.log("Minutes in game: " + form.elements['minutes'].value);
+                console.log("Sub periods: " + form.elements['periods'].value);
+                console.log("Formation: " + form.elements['formation'].value);
+                console.log("Players: " + form.elements['players'].value);
+
+                let playerListStr = form.elements['players'].value;
+                let periods = parseInt(form.elements['periods'].value ?? '8');
+                let minutes = parseInt(form.elements['minutes'].value ?? '52');
+                let timePerPeriod = minutes / periods;
+                let currTime = 0;
+                theTimePeriods = []
+
+                // theTimePeriods override
+                let theTimePeriodsStr = form.elements['timePeriodJSON'].value;
+                if (theTimePeriodsStr) {
+                    theTimePeriods = JSON.parse(theTimePeriodsStr);
+                } else if (playerListStr) {
+                    for (p = 0; p < periods; p++) {
+                        theTimePeriods.push({ "time": currTime, "subs": extractWords(playerListStr) })
+                        currTime += timePerPeriod;
+                    }
+                } else {
+                    for (p = 0; p < periods; p++) {
+                        theTimePeriods.push({ "time": currTime, "subs": ["Puma", "Lynx", "Leopard", "Bobcat", "Margay", "Lion", "Jaguar", "Tiger", "Caracal", "Ocelot"] })
+                        currTime += timePerPeriod;
+                    }
+                }
+
+                game = {
+                    name: form.elements['name'].value,
+                    period: 1, // start at first period
+                    formation: parseInt(form.elements['formation'].value ?? '322'),
+                    timePeriods: theTimePeriods
+                }
+                let hackUrl = mkUrl(game);
+                if (hackUrl.includes("index.html")) {
+                    hackUrl = hackUrl.replace('index', 'cheetahts');
+                } else {
+                    hackUrl = hackUrl.replace('/?', '/cheetahts.html?');
+                }
+
+                // navigate to 'cheetahts.html'
+                window.location.href = hackUrl;
+            };
+        };
+/*
+Fizz, Binx, Remy, Fluff, Puff, Wooly, Fuzzy, Snug, Tufty, Whisk, Plush, Fleece, Nuzzle, Peach, Strawberry, Hairball, Screwy
+*/
+
+    </script>
 </head>
 
 <body>
-    <canvas id="SoccerCanvas" width="360" height="270"></canvas>
-    <table id="playerPositionsTable">
-        <tbody></tbody>
-    </table>
-    <div id="Nav"></div>
-    <div id="SubList"></div>
-    <div>&nbsp;</div>
-    <script src="out/soccer.js"></script>
-    <script>
-        /* Setup and querystring parsing */
+    <div class="container">
+        <h1><em>CheetahTS</em></h1>
+        <h2>The Youth Soccer Sub Planner</h2>
+    
+        <p>Welcome to CheetahTS, the youth soccer sub planner.</p>
+        <p>
+            This is an small, open source, web app that anyone can use to plan their soccer team's substitution schedule.
+        </p>
+        <p>The app was made to work well in a browser and on a phone at game-time. Every change is stored in the URL so all you have to do to save the game is bookmark the (very long) url!</p>
+        <p>
+            You can create a game and start using the tool with the form below, or click
+            <a href="https://github.com/bballant/cheetahts/blob/main/README.md">here</a> to find
+            the documentation and the source code.
+        </p>
 
-        const canvas = document.getElementById('SoccerCanvas');
-        const game = parseUrl();
+        <h2>Get started with a new game</h2>
 
-        document.title = "Game: " + game.name;
-
-        // 332 default
-        var positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'RM', 'LF', 'RF'];
-        if (game.formation == 331) {
-            positionKeys = ['GK', 'LB', 'CB', 'RB', 'LM', 'CM', 'RM', 'ST'];
-        }
-
-        // print to console some useful stuff that I will find a better way
-        console.log(game.timePeriods);
-        console.log(createCSV(positionKeys, game.timePeriods));
-        // gross but I don't feel like threading the duration in
-        let minsPerPeriod = 6.5;
-        if (game.timePeriods.length > 1) {
-            minsPerPeriod = game.timePeriods[1].time - game.timePeriods[0].time;
-        }
-        const minutesPlayed = calculateMinutesPlayed(minsPerPeriod, positionKeys, game.timePeriods);
-
-        const currentPeriod = getCurrentPeriod(game);
-
-        const players = new Map();
-        const positions = new Map();
-        positionKeys.forEach((positionKey) => {
-            const player = currentPeriod[positionKey];
-            if (player) {
-                players.set(positionKey, player);
-                positions.set(player, positionKey);
-            }
-        });
-        const subs = currentPeriod.subs ? currentPeriod.subs : [];
-
-        // Combine the "subs" list with the players from the "players" map
-        const playersList = [...subs, ...Array.from(players.values())];
-        const playersSet = new Set(playersList);
-        const allPlayers = Array.from(playersSet);
-
-        /* Draw the field */
-
-        drawSoccerField(canvas, 0, 0, 360, 270, game.formation, players);
-
-        /* Information table below */
-
-        const tableBody = document.getElementById('playerPositionsTable').getElementsByTagName('tbody')[0];
-
-        /* Time period links */
-
-        var timePeriodStr = JSON.stringify(game.timePeriods);
-        totalRows = Math.max(game.timePeriods.length, positionKeys.length);
-        for (var r = 0; r < totalRows; r++) {
-            const row = tableBody.insertRow();
-            const timesCell = row.insertCell(0)
-            timesCell.vAlign = "top";
-            var listItem = '&nbsp;';
-            const period = game.timePeriods[r];
-            if (period) {
-                const newUrl = mkUrl({ ...game, time: period.time })
-                var listItem = `<a href="${newUrl}">${minutesSeconds(period.time)}</a>`;
-                if (game.time == period.time) {
-                    listItem = `${minutesSeconds(period.time)}`;
-                }
-            }
-            timesCell.innerHTML = listItem;
-        }
-
-
-        /* Position selector */
-
-        const dropdownChangeHandler = (event) => {
-            const allDropdowns = document.querySelectorAll('#playerPositionsTable select');
-            const selectedPlayers = [];
-
-            for (const dropdown of allDropdowns) {
-                if (dropdown.value) {
-                    selectedPlayers.push(dropdown.value);
-                    currentPeriod[dropdown.id] = dropdown.value;
-                }
-            }
-
-            currentPeriod.subs = allPlayers.filter((player) => !selectedPlayers.includes(player));
-            // update timePeriods
-            for (var i = 0; i < game.timePeriods.length; i++) {
-                if (game.timePeriods[i].time == currentPeriod.time) {
-                    game.timePeriods[i] = currentPeriod;
-                }
-            }
-
-            window.location.href = mkUrl(game);
-        };
-
-        // draw the selectors
-        var pidx = 0;
-        for (const positionKey of positionKeys) {
-            // Insert the position key in the left column
-            const positionCell = tableBody.rows[pidx].insertCell(1);
-            positionCell.innerHTML = '&nbsp;&nbsp;' + positionKey;
-
-            // Create the dropdown list with all players in the right column
-            const playerCell = tableBody.rows[pidx].insertCell(2);
-            const playerSelect = document.createElement('select');
-            playerSelect.id = positionKey;
-            playerSelect.addEventListener('change', dropdownChangeHandler);
-            const emptyOption = document.createElement('option');
-            emptyOption.value = "";
-            emptyOption.text = "None";
-            playerSelect.add(emptyOption);
-            allPlayers.forEach((player) => {
-                const playerOption = document.createElement('option');
-                playerOption.value = player;
-                playerOption.text = player;
-                if (players.get(positionKey) == player) {
-                    playerOption.selected = true;
-                }
-                playerSelect.add(playerOption);
-            });
-            playerCell.appendChild(playerSelect);
-            pidx++;
-        }
-
-        /* Player info */
-
-        const leCell = tableBody.rows[0].insertCell(3)
-        leCell.rowSpan = positionKeys.length;
-        leCell.vAlign = "top";
-
-        allPlayers.sort();
-        var playerMaxLen = 0;
-        allPlayers.forEach((player) => {
-            playerMaxLen = player.length > playerMaxLen ? player.length : playerMaxLen;
-        });
-        var html = "";
-        for (const player of allPlayers) {
-            html = html + "&nbsp;&nbsp;" + padStringWithSpaces(player, playerMaxLen + 1);
-            if (positions.get(player)) {
-                html = html + positions.get(player);
-            } else {
-                html = html + "--";
-            }
-            var mins = minutesPlayed.get(player) ? minutesPlayed.get(player) : 0;
-            html = html + "&nbsp;&nbsp;" + mins + "<br/>\n";
-        }
-        leCell.innerHTML = html;
-
-        /* Sub info */
-
-        for (var i = 0; i < game.timePeriods.length; i++) {
-            if (i == 0) {
-                continue;
-            }
-            if (game.time == game.timePeriods[i].time) {
-                const subList = generateSubActions(game.timePeriods[i - 1], game.timePeriods[i], positionKeys);
-                const sublistDiv = document.getElementById('SubList');
-                let lastPeriod = { ...game.timePeriods[i - 1], time: game.timePeriods[i].time };
-                let newPeriods = Array.from(game.timePeriods);
-                newPeriods[i] = lastPeriod;
-                let dupPrevGame = { ...game, timePeriods: newPeriods };
-                sublistDiv.innerHTML =
-                    "<br/>" +
-                    "<strong>" + minutesSeconds(game.timePeriods[i].time) + "</strong>" + "&nbsp;&nbsp;" +
-                    "<a href='" + mkUrl(dupPrevGame) + "'>copy</a>";
-                sublistDiv.appendChild(subList);
-            }
-        }
-
-    </script>
+        <form id="myForm">
+            <table>
+                <tr>
+                    <td class="label">Name It:</td>
+                    <td><input type="text" name="name" placeholder="Wildcats Vs. Rabbits"></input></td>
+                </tr>
+                <tr>
+                    <td class="label">Minutes in game:</td>
+                    <td>
+                        <input class="minutes" id="minutes" name="minutes" type="number" value="52"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Sub periods:</td>
+                    <td>
+                        <select name="periods">
+                            <option>8</option>
+                            <option>4</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Formation:</td>
+                    <td>
+                        <select name="formation">
+                            <option value="332">322 (8)</option>
+                            <option value="331">331 (8)</option>
+                            <option value="442">442 (11)</option>
+                            <option value="433">433 (11)</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Players:</td>
+                    <td><textarea id="players" name="players" placeholder="Puma,Cheetah,Leopard,Margay..."></textarea></td>
+                </tr>
+                <tr><td colspan="2"><input type="submit" value="Click to Start Planning"></td></tr>
+                <tr><td colspan="2">&nbsp;</td></tr>
+                <tr><td colspan="2">~~~ debugging ~~~</td></tr>
+                <tr>
+                    <td colspan="2">
+                        <a href="/cheetahts.html?period=2&formation=322&timePeriods=%255B%257B%2522time%2522%253A0%252C%2522subs%2522%253A%255B%2522Margay%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Leopard%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Lion%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A6.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Puma%2522%252C%2522LM%2522%253A%2522Tiger%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A13%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Tiger%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Jaguar%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Ocelot%2522%257D%252C%257B%2522time%2522%253A19.5%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Bobcat%2522%252C%2522LB%2522%253A%2522Caracal%2522%252C%2522CB%2522%253A%2522Puma%2522%252C%2522RB%2522%253A%2522Leopard%2522%252C%2522LM%2522%253A%2522Lion%2522%252C%2522RM%2522%253A%2522Lynx%2522%252C%2522LF%2522%253A%2522Margay%2522%252C%2522RF%2522%253A%2522Tiger%2522%257D%252C%257B%2522time%2522%253A26%252C%2522subs%2522%253A%255B%2522Lynx%2522%252C%2522Caracal%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Margay%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Puma%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A32.5%252C%2522subs%2522%253A%255B%2522Puma%2522%252C%2522Margay%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Ocelot%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Jaguar%2522%257D%252C%257B%2522time%2522%253A39%252C%2522subs%2522%253A%255B%2522Jaguar%2522%252C%2522Ocelot%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Lion%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Leopard%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%252C%257B%2522time%2522%253A45.5%252C%2522subs%2522%253A%255B%2522Lion%2522%252C%2522Leopard%2522%255D%252C%2522GK%2522%253A%2522Tiger%2522%252C%2522LB%2522%253A%2522Margay%2522%252C%2522CB%2522%253A%2522Lynx%2522%252C%2522RB%2522%253A%2522Ocelot%2522%252C%2522LM%2522%253A%2522Bobcat%2522%252C%2522RM%2522%253A%2522Jaguar%2522%252C%2522LF%2522%253A%2522Caracal%2522%252C%2522RF%2522%253A%2522Puma%2522%257D%255D&name=Wildcats+Vs+Rabbits">
+                            8v8 Sample</a>
+                        <div>&nbsp;</div>
+                        <a
+                            href="/cheetahts.html?name=Dwarfs+VS+Lemmings&period=1&formation=433&timePeriods=%255B%257B%2522time%2522%253A0%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A11.25%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A22.5%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A33.75%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A45%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A56.25%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A67.5%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%252C%257B%2522time%2522%253A78.75%252C%2522subs%2522%253A%255B%2522Biff%2522%252C%2522Grub%2522%252C%2522Flint%2522%252C%2522Nugget%2522%252C%2522Digg%2522%252C%2522Spark%2522%252C%2522Grit%2522%252C%2522Bolt%2522%252C%2522Muck%2522%252C%2522Slag%2522%252C%2522Clink%2522%252C%2522Fizz%2522%252C%2522Smelt%2522%252C%2522Chunk%2522%252C%2522Spade%2522%252C%2522Pebble%2522%252C%2522Gleam%2522%255D%257D%255D">
+                            11 V 11 Sample</a>
+                        <div>&nbsp;</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="label">Time Period JSON:</td>
+                    <td><textarea name="timePeriodJSON" placeholder="[{'time': 0.0, 'subs': [], ...}]"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
 </body>
 
 </html>
