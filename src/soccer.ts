@@ -4,11 +4,17 @@ type TimePeriod = {
     GK?: string;
     LB?: string;
     CB?: string;
+    LCB?: string;
+    RCB?: string;
     RB?: string;
     LM?: string;
+    CM?: string;
+    LCM?: string;
+    RCM?: string;
     RM?: string;
     LF?: string;
     RF?: string;
+    ST?: string;
 };
 
 type Game = {
