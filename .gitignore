@@ -3,3 +3,4 @@ soccer_fields.png
 *.json
 .vscode/
 tmp/
+*.local.md

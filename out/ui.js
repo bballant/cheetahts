@@ -112,7 +112,7 @@ function drawPlayerInfo(leCell, allPlayers, positions, minutesPlayed) {
             html = html + "-- ";
         }
         var mins = minutesPlayed.get(player) ? minutesPlayed.get(player) : 0;
-        html = html + "&nbsp;&nbsp;" + mins + "<br/>\n";
+        html = html + "&nbsp;&nbsp;" + Math.round(mins) + "<br/>\n";
     }
     leCell.innerHTML = html;
 }
